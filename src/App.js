@@ -7,6 +7,7 @@ import News from "./pages/News";
 import NewsDetail from "./pages/NewsDetail";
 import Analyze from "./pages/Analyze";
 import RelatedArticles from "./pages/RelatedArticles";
+import RelatedNews from "./pages/RelatedNews";
 import Try from "./pages/Try";
 import SyntaxAnalysis from "./pages/SyntaxAnalysis";
 
@@ -23,6 +24,7 @@ function App() {
         <Route path="/news/:newsId" element={<NewsDetail />} />
         <Route path="/analyze/:type" element={<Analyze />} />
         <Route path="/related-articles" element={<RelatedArticles />} />
+        <Route path="/related-news" element={<RelatedNews />} />
         <Route path="/try/:type" element={<Try />} />
         <Route path="/syntax-analysis" element={<SyntaxAnalysis />} />
       </Routes>
