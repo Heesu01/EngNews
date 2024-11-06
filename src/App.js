@@ -9,10 +9,11 @@ import Analyze from "./pages/Analyze";
 import RelatedNews from "./pages/RelatedNews";
 import Try from "./pages/Try";
 import SyntaxAnalysis from "./pages/SyntaxAnalysis";
+import Layout from "./components/Layout";
 
 function App() {
   return (
-    <>
+    <Layout>
       <Routes>
         <Route path="/" element={<Navigate to="/main" />} />
         <Route path="/main" element={<Main />} />
@@ -26,7 +27,7 @@ function App() {
         <Route path="/try/:type" element={<Try />} />
         <Route path="/syntax-analysis" element={<SyntaxAnalysis />} />
       </Routes>
-    </>
+    </Layout>
   );
 }
 
