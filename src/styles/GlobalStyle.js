@@ -1,5 +1,6 @@
 import { createGlobalStyle } from "styled-components";
 import reset from "styled-reset";
+import "./font.css";
 
 const GlobalStyle = createGlobalStyle`
   ${reset};
@@ -11,6 +12,9 @@ const GlobalStyle = createGlobalStyle`
     border: 0;
     text-decoration: none;
     box-sizing: border-box;
+    font-family: 'Pretendard';
+    /* font-family: ${(props) => props.theme.fonts.default}; */
+    line-height: 1.5em;
     &:visited {
       text-decoration: none;
       color: black;
