@@ -3,8 +3,11 @@ import Button from "../components/Button";
 import InputFilled from "../components/InputFilled";
 import styled from "styled-components";
 import { RiKakaoTalkFill } from "react-icons/ri";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
+  const navigate = useNavigate();
+
   return (
     <Container>
       <Logo>ENGNEWS</Logo>
@@ -15,9 +18,10 @@ const Login = () => {
           placeholder={"비밀번호를 입력해주세요."}
           type={"password"}
         />
-        <Button>로그인</Button>
+        <Button onClick={() => navigate("/")}>로그인</Button>
         <TextBox>
-          계정이 없으신가요? <span>회원가입</span>
+          계정이 없으신가요?{" "}
+          <span onClick={() => navigate("/auth/signup")}>회원가입</span>
         </TextBox>
       </LoginBox>
       <KakaoLogin>
