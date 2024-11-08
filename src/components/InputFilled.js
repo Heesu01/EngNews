@@ -1,10 +1,10 @@
 import React from "react";
 import styled from "styled-components";
 
-const InputFilled = ({ placeholder, type }) => {
+const InputFilled = ({ placeholder, type, register }) => {
   return (
     <Container>
-      <Input placeholder={placeholder} type={type} />
+      <Input placeholder={placeholder} type={type} {...register} />
     </Container>
   );
 };

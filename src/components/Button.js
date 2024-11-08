@@ -1,10 +1,10 @@
 import React from "react";
 import styled from "styled-components";
 
-const Button = ({ children, onClick, hoverColor }) => {
+const Button = ({ children, onClick, hoverColor, type }) => {
   return (
     <Container>
-      <Btn onClick={onClick} hoverColor={hoverColor}>
+      <Btn onClick={onClick} hoverColor={hoverColor} type={type}>
         {children}
       </Btn>
     </Container>
