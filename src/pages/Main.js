@@ -1,7 +1,10 @@
 import styled from "styled-components";
 import Banner from "../components/Banner";
+import { useNavigate } from "react-router-dom";
 
 const Main = () => {
+  const navigate = useNavigate();
+
   const naverArticles = [
     { id: 1, title: "네이버 기사 1" },
     { id: 2, title: "네이버 기사 2" },
@@ -25,11 +28,15 @@ const Main = () => {
         <CardContainer>
           <CardBox>
             <Title>
-              네이버 TOP 5 <span>자세히보기 ></span>
+              네이버 TOP 5{" "}
+              <span onClick={() => navigate("/news/:name")}>자세히보기 ></span>
             </Title>
             <CardWrapper>
               {naverArticles.map((article, index) => (
-                <Article key={article.id}>
+                <Article
+                  key={article.id}
+                  onClick={() => navigate("/news/:newsId")}
+                >
                   <Rank>{index + 1}</Rank>
                   <ArticleTitle>{article.title}</ArticleTitle>
                 </Article>
@@ -38,11 +45,15 @@ const Main = () => {
           </CardBox>
           <CardBox>
             <Title>
-              NY Times TOP 5 <span>자세히보기 ></span>
+              NY Times TOP 5{" "}
+              <span onClick={() => navigate("/news/:name")}>자세히보기 ></span>
             </Title>
             <CardWrapper>
               {nyTimesArticles.map((article, index) => (
-                <Article key={article.id}>
+                <Article
+                  key={article.id}
+                  onClick={() => navigate("/news/:newsId")}
+                >
                   <Rank>{index + 1}</Rank>
                   <ArticleTitle>{article.title}</ArticleTitle>
                 </Article>
@@ -101,6 +112,10 @@ const Article = styled.div`
   display: flex;
   align-items: center;
   padding: 10px;
+  cursor: pointer;
+  &:hover {
+    color: ${(props) => props.theme.colors.blue};
+  }
 `;
 
 const Rank = styled.div`
