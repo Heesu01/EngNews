@@ -1,12 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 import InputFilled from "../components/InputFilled";
+import SignUpModal from "../components/SignupModal";
 import styled from "styled-components";
 
 const SignUp = () => {
   const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const {
     register,
     handleSubmit,
@@ -16,7 +18,7 @@ const SignUp = () => {
 
   const onSubmit = (data) => {
     console.log(data);
-    navigate("/");
+    setIsModalOpen(true);
   };
 
   const password = watch("password");
@@ -106,6 +108,7 @@ const SignUp = () => {
           <span onClick={() => navigate("/auth/login")}>로그인</span>
         </TextBox>
       </SignupBox>
+      {isModalOpen && <SignUpModal />}
     </Container>
   );
 };
