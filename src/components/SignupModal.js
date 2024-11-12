@@ -3,16 +3,24 @@ import styled from "styled-components";
 import Button from "./Button";
 import Category from "./Category";
 import { BiSolidCategory } from "react-icons/bi";
-import { BsBookmarkPlusFill } from "react-icons/bs";
+import { BsBookmarkPlusFill, BsChevronDown } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 
 const SignUpModal = () => {
   const navigate = useNavigate();
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [keywords, setKeywords] = useState([]);
-  const [inputKeyword, setInputKeyword] = useState("");
+  const [showKeywordList, setShowKeywordList] = useState(false);
 
   const categories = ["정치", "IT/과학", "사회", "경제", "생활/문화", "세계"];
+  const availableKeywords = [
+    "개발자",
+    "데이터",
+    "AI",
+    "코딩",
+    "웹개발",
+    "앱개발",
+  ];
 
   const toggleCategory = (category) => {
     if (selectedCategories.includes(category)) {
@@ -24,11 +32,15 @@ const SignUpModal = () => {
     }
   };
 
-  const addKeyword = () => {
-    if (inputKeyword && !keywords.includes(inputKeyword)) {
-      setKeywords([...keywords, inputKeyword]);
-      setInputKeyword("");
+  const toggleKeywordList = () => {
+    setShowKeywordList((prev) => !prev);
+  };
+
+  const addKeyword = (keyword) => {
+    if (!keywords.includes(keyword)) {
+      setKeywords([...keywords, keyword]);
     }
+    setShowKeywordList(false);
   };
 
   const removeKeyword = (keyword) => {
@@ -59,15 +71,21 @@ const SignUpModal = () => {
         <KeywordContainer>
           <CategoryTitle>
             <BsBookmarkPlusFill size={"16px"} />
-            <p>관심 키워드 추가</p>
+            <p>관심 키워드 선택</p>
           </CategoryTitle>
-          <KeywordInput
-            type="text"
-            placeholder="키워드를 입력해주세요."
-            value={inputKeyword}
-            onChange={(e) => setInputKeyword(e.target.value)}
-          />
-          <KeywordButton onClick={addKeyword}>+</KeywordButton>
+          <KeywordDropdown onClick={toggleKeywordList}>
+            <span>관심 키워드를 선택해주세요</span>
+            <BsChevronDown />
+          </KeywordDropdown>
+          {showKeywordList && (
+            <DropdownList>
+              {availableKeywords.map((keyword, index) => (
+                <DropdownItem key={index} onClick={() => addKeyword(keyword)}>
+                  {keyword}
+                </DropdownItem>
+              ))}
+            </DropdownList>
+          )}
           <AddedKeywordContainer>
             {keywords.map((keyword, index) => (
               <Category
@@ -132,25 +150,38 @@ const KeywordContainer = styled.div`
   margin-bottom: 20px;
 `;
 
-const KeywordInput = styled.input`
-  width: 90%;
+const KeywordDropdown = styled.div`
+  width: 100%;
   padding: 8px;
   border: 1px solid ${(props) => props.theme.colors.navy};
   border-radius: 4px;
-  margin-right: 8px;
-  &:focus {
-    outline: none;
+  cursor: pointer;
+  background-color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  &:hover {
     border: 1.5px solid ${(props) => props.theme.colors.deepBlue};
   }
 `;
 
-const KeywordButton = styled.button`
-  padding: 10px;
-  border: none;
-  background-color: #1c3a7a;
-  color: #fff;
+const DropdownList = styled.div`
+  position: relative;
+  background-color: #fff;
+  border: 1px solid #ccc;
   border-radius: 4px;
+  margin-top: 5px;
+  max-height: 150px;
+  overflow-y: auto;
+  z-index: 10;
+`;
+
+const DropdownItem = styled.div`
+  padding: 8px;
   cursor: pointer;
+  &:hover {
+    background-color: #f0f0f0;
+  }
 `;
 
 const AddedKeywordContainer = styled.div`
