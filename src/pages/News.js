@@ -174,7 +174,7 @@ const ContentContainer = styled.div`
 const ArticleCard = styled.div`
   width: 49%;
   min-height: 170px;
-  border: 1px solid #ccc;
+  border: 1px solid ${(props) => props.theme.colors.gray2};
   padding: 16px;
   border-radius: 8px;
   background-color: ${(props) => props.theme.colors.white};
