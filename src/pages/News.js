@@ -63,6 +63,24 @@ const News = () => {
             />
           ))}
         </FilterContainer>
+        <ContentContainer>
+          <ArticleCard>
+            <ArticleTitle>기사제목</ArticleTitle>
+            <ArticleContent>간략한내용...</ArticleContent>
+          </ArticleCard>
+          <ArticleCard>
+            <ArticleTitle>기사제목</ArticleTitle>
+            <ArticleContent>간략한내용...</ArticleContent>
+          </ArticleCard>
+          <ArticleCard>
+            <ArticleTitle>기사제목</ArticleTitle>
+            <ArticleContent>간략한내용...</ArticleContent>
+          </ArticleCard>
+          <ArticleCard>
+            <ArticleTitle>기사제목</ArticleTitle>
+            <ArticleContent>간략한내용...</ArticleContent>
+          </ArticleCard>
+        </ContentContainer>
       </BottomContainer>
     </Container>
   );
@@ -130,6 +148,35 @@ const FilterContainer = styled.div`
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+`;
+
+const ContentContainer = styled.div`
+  width: 100%;
+  min-height: 350px;
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+  gap: 1.5vw;
+  flex-wrap: wrap;
+`;
+
+const ArticleCard = styled.div`
+  width: 49%;
+  border: 1px solid #ccc;
+  padding: 16px;
+  border-radius: 8px;
+  background-color: ${(props) => props.theme.colors.white};
+  cursor: pointer;
+`;
+
+const ArticleTitle = styled.h3`
+  font-size: 18px;
+  margin-bottom: 5px;
+`;
+
+const ArticleContent = styled.p`
+  font-size: 14px;
+  color: ${(props) => props.theme.colors.gray};
 `;
 
 export default News;
