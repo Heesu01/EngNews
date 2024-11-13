@@ -3,9 +3,30 @@ import styled from "styled-components";
 import { FaSearch } from "react-icons/fa";
 
 import Banner from "../components/Banner";
+import Category from "../components/Category";
 
 const News = () => {
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedSort, setSelectedSort] = useState("최신순");
+
+  const categories = [
+    "Top5",
+    "키워드 맞춤",
+    "정치",
+    "IT/과학",
+    "사회",
+    "경제",
+    "생활/문화",
+    "세계",
+  ];
+
+  const selectCategory = (category) => {
+    if (selectedCategory === category) {
+      setSelectedCategory(null);
+    } else {
+      setSelectedCategory(category);
+    }
+  };
 
   return (
     <Container>
@@ -32,6 +53,16 @@ const News = () => {
             </SortOption>
           </SortContainer>
         </SearchContainer>
+        <FilterContainer>
+          {categories.map((category, index) => (
+            <Category
+              key={index}
+              label={category}
+              selected={selectedCategory === category}
+              onClick={() => selectCategory(category)}
+            />
+          ))}
+        </FilterContainer>
       </BottomContainer>
     </Container>
   );
@@ -93,6 +124,12 @@ const SortOption = styled.span`
   &:hover {
     text-decoration: underline;
   }
+`;
+
+const FilterContainer = styled.div`
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 `;
 
 export default News;
