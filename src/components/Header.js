@@ -11,7 +11,7 @@ const Header = () => {
         <Logo onClick={() => navigate("/")}>ENGNEWS</Logo>
         <Menu>
           <Item onClick={() => navigate("/news/:name")}>네이버 기사</Item>
-          <Item onClick={() => navigate("/news/:name")}>NY Teams 기사</Item>
+          <Item onClick={() => navigate("/news/:name")}>NY Times 기사</Item>
         </Menu>
       </Left>
       <BtnBox>
