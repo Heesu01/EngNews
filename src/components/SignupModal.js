@@ -153,7 +153,7 @@ const KeywordContainer = styled.div`
 const KeywordDropdown = styled.div`
   width: 100%;
   padding: 8px;
-  border: 1px solid ${(props) => props.theme.colors.navy};
+  border: 1px solid ${(props) => props.theme.colors.gray};
   border-radius: 4px;
   cursor: pointer;
   background-color: #fff;
@@ -161,7 +161,7 @@ const KeywordDropdown = styled.div`
   justify-content: space-between;
   align-items: center;
   &:hover {
-    border: 1.5px solid ${(props) => props.theme.colors.deepBlue};
+    border: 1px solid ${(props) => props.theme.colors.deepBlue};
   }
 `;
 
