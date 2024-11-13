@@ -20,6 +20,17 @@ const News = () => {
     "세계",
   ];
 
+  const articles = [
+    { id: 1, title: "기사 제목 1", content: "간략한 내용 1" },
+    { id: 2, title: "기사 제목 2", content: "간략한 내용 2" },
+    { id: 3, title: "기사 제목 3", content: "간략한 내용 3" },
+    { id: 4, title: "기사 제목 4", content: "간략한 내용 4" },
+    { id: 4, title: "기사 제목 4", content: "간략한 내용 4" },
+    { id: 4, title: "기사 제목 4", content: "간략한 내용 4" },
+    { id: 4, title: "기사 제목 4", content: "간략한 내용 4" },
+    { id: 4, title: "기사 제목 4", content: "간략한 내용 4" },
+  ];
+
   const selectCategory = (category) => {
     if (selectedCategory === category) {
       setSelectedCategory(null);
@@ -64,22 +75,12 @@ const News = () => {
           ))}
         </FilterContainer>
         <ContentContainer>
-          <ArticleCard>
-            <ArticleTitle>기사제목</ArticleTitle>
-            <ArticleContent>간략한내용...</ArticleContent>
-          </ArticleCard>
-          <ArticleCard>
-            <ArticleTitle>기사제목</ArticleTitle>
-            <ArticleContent>간략한내용...</ArticleContent>
-          </ArticleCard>
-          <ArticleCard>
-            <ArticleTitle>기사제목</ArticleTitle>
-            <ArticleContent>간략한내용...</ArticleContent>
-          </ArticleCard>
-          <ArticleCard>
-            <ArticleTitle>기사제목</ArticleTitle>
-            <ArticleContent>간략한내용...</ArticleContent>
-          </ArticleCard>
+          {articles.map((article) => (
+            <ArticleCard key={article.id}>
+              <ArticleTitle>{article.title}</ArticleTitle>
+              <ArticleContent>{article.content}</ArticleContent>
+            </ArticleCard>
+          ))}
         </ContentContainer>
       </BottomContainer>
     </Container>
@@ -152,7 +153,8 @@ const FilterContainer = styled.div`
 
 const ContentContainer = styled.div`
   width: 100%;
-  min-height: 350px;
+
+  height: auto;
   margin-top: 30px;
   display: flex;
   justify-content: center;
@@ -162,6 +164,7 @@ const ContentContainer = styled.div`
 
 const ArticleCard = styled.div`
   width: 49%;
+  min-height: 170px;
   border: 1px solid #ccc;
   padding: 16px;
   border-radius: 8px;
