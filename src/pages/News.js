@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { FaSearch } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 import Banner from "../components/Banner";
 import Category from "../components/Category";
 
 const News = () => {
+  const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedSort, setSelectedSort] = useState("최신순");
 
@@ -37,6 +39,10 @@ const News = () => {
     } else {
       setSelectedCategory(category);
     }
+  };
+
+  const handleArticleClick = (articleId) => {
+    navigate(`/news/${articleId}`);
   };
 
   return (
@@ -76,7 +82,10 @@ const News = () => {
         </FilterContainer>
         <ContentContainer>
           {articles.map((article) => (
-            <ArticleCard key={article.id}>
+            <ArticleCard
+              key={article.id}
+              onClick={() => handleArticleClick(article.id)}
+            >
               <ArticleTitle>{article.title}</ArticleTitle>
               <ArticleContent>{article.content}</ArticleContent>
             </ArticleCard>
