@@ -13,6 +13,7 @@ const StyledButton = styled.button`
   min-width: 70px;
   padding: 8px 12px;
   border: 1px solid ${(props) => props.theme.colors.navy};
+  border: 1px solid ${(props) => props.theme.colors.gray};
   border-radius: 4px;
   background-color: ${(props) =>
     props.selected ? props.theme.colors.navy : props.theme.colors.white};
