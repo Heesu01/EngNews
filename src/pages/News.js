@@ -42,7 +42,7 @@ const News = () => {
   };
 
   const handleArticleClick = (articleId) => {
-    navigate(`/news/${articleId}`);
+    navigate(`/news/newsId`);
   };
 
   return (
