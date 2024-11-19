@@ -26,8 +26,8 @@ function App() {
         <Route path="/news/newsId" element={<NewsDetail />} />
         <Route path="/news/summary" element={<Summary />} />
         <Route path="/news/translate" element={<Translation />} />
-        <Route path="/related-news" element={<RelatedNews />} />
-        <Route path="/news/trytranslation" element={<TryT />} />
+        <Route path="/news/related-news/:languages" element={<RelatedNews />} />
+        <Route path="/news/trytranslate" element={<TryT />} />
         <Route path="/news/trysummary" element={<TryS />} />
         <Route path="/news/analyze" element={<Analyze />} />
       </Routes>
