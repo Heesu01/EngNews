@@ -7,9 +7,11 @@ import News from "./pages/News";
 import NewsDetail from "./pages/NewsDetail";
 import Analyze from "./pages/Analyze";
 import RelatedNews from "./pages/RelatedNews";
-import Try from "./pages/Try";
-import SyntaxAnalysis from "./pages/SyntaxAnalysis";
+import TryT from "./pages/TryT";
+import TryS from "./pages/TryS";
 import Layout from "./components/Layout";
+import Summary from "./pages/Summary";
+import Translation from "./pages/Translation";
 
 function App() {
   return (
@@ -21,11 +23,13 @@ function App() {
         <Route path="/auth/signup" element={<SignUp />} />
         <Route path="/mypage" element={<MyPage />} />
         <Route path="/news/:name" element={<News />} />
-        <Route path="/news/:newsId" element={<NewsDetail />} />
-        <Route path="/analyze/:type" element={<Analyze />} />
+        <Route path="/news/newsId" element={<NewsDetail />} />
+        <Route path="/news/summary" element={<Summary />} />
+        <Route path="/news/translate" element={<Translation />} />
         <Route path="/related-news" element={<RelatedNews />} />
-        <Route path="/try/:type" element={<Try />} />
-        <Route path="/syntax-analysis" element={<SyntaxAnalysis />} />
+        <Route path="/news/trytranslation" element={<TryT />} />
+        <Route path="/news/trysummary" element={<TryS />} />
+        <Route path="/news/analyze" element={<Analyze />} />
       </Routes>
     </Layout>
   );

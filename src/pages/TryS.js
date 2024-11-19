@@ -1,7 +1,7 @@
 import React from "react";
 
-const Try = () => {
+const TryS = () => {
   return <div></div>;
 };
 
-export default Try;
+export default TryS;
