@@ -74,7 +74,7 @@ const BtnBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 20px;
+  gap: 7px;
 `;
 const Btn = styled.button`
   display: flex;
