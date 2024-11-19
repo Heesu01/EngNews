@@ -15,6 +15,7 @@ const Container = styled.div`
   padding: 20px 40px;
   width: 100%;
   display: flex;
+  gap: 20px;
 `;
 
 export default NewsDetail;

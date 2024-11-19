@@ -33,8 +33,8 @@ const LeftBar = () => {
           <span>뉴스 요약</span>
         </Button>
         <Button
-          isActive={location.pathname === "/news/trytranslation"}
-          onClick={() => handleNavigation("/news/trytranslation")}
+          isActive={location.pathname === "/news/trytranslate"}
+          onClick={() => handleNavigation("/news/trytranslate")}
         >
           <IoChatbubbleSharp />
           <span>번역해보기</span>
@@ -50,15 +50,15 @@ const LeftBar = () => {
       <SectionTitle>관련기사 탐색</SectionTitle>
       <Section>
         <Button
-          isActive={location.pathname === "news/related-korea"}
-          onClick={() => handleNavigation("news/related-korea")}
+          isActive={location.pathname === "/news/related-news/:korea"}
+          onClick={() => handleNavigation("/news/related-news/:korea")}
         >
           <FaNewspaper />
           <span>관련한국기사</span>
         </Button>
         <Button
-          isActive={location.pathname === "news/related-foreign"}
-          onClick={() => handleNavigation("news/related-foreign")}
+          isActive={location.pathname === "/news/related-news/:english"}
+          onClick={() => handleNavigation("/news/related-news/:english")}
         >
           <FaRegNewspaper />
           <span>관련외국기사</span>
@@ -69,10 +69,10 @@ const LeftBar = () => {
 };
 
 const Container = styled.div`
-  width: 17%;
-  min-width: 230px;
+  width: 30%;
   height: 100%;
   padding: 20px 10px;
+  padding-right: 0;
 `;
 
 const Section = styled.div`
