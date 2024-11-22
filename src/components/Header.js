@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { logout } from "../api/AuthApi";
+import { FaUserCircle } from "react-icons/fa";
 
 const Header = ({ isLoggedIn, setIsLoggedIn }) => {
   const navigate = useNavigate();
@@ -30,7 +31,10 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
       </Left>
       <BtnBox>
         {isLoggedIn ? (
-          <Logout onClick={handleLogout}>로그아웃</Logout>
+          <>
+            <Logout onClick={handleLogout}>로그아웃</Logout>
+            <ProfileIcon onClick={() => navigate("/mypage")} />
+          </>
         ) : (
           <>
             <Login onClick={() => navigate("/auth/login")}>로그인</Login>
@@ -41,6 +45,8 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
     </Container>
   );
 };
+
+export default Header;
 
 const Container = styled.div`
   width: 100%;
@@ -97,6 +103,15 @@ const Join = styled.div`
 const Logout = styled.div`
   cursor: pointer;
   color: ${(props) => props.theme.colors.red};
+  margin-right: -10px;
 `;
 
-export default Header;
+const ProfileIcon = styled(FaUserCircle)`
+  font-size: 30px;
+  cursor: pointer;
+  color: ${(props) => props.theme.colors.black};
+  opacity: 70%;
+  &:hover {
+    opacity: 100%;
+  }
+`;
