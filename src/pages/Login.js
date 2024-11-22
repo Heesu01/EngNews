@@ -5,6 +5,7 @@ import Button from "../components/Button";
 import InputFilled from "../components/InputFilled";
 import styled from "styled-components";
 import { RiKakaoTalkFill } from "react-icons/ri";
+import { login } from "../api/AuthApi";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -14,9 +15,15 @@ const Login = () => {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data) => {
-    console.log(data);
-    navigate("/");
+  const onSubmit = async (data) => {
+    try {
+      const response = await login({ email: data.id, password: data.password });
+      console.log("로그인 성공:", response);
+      navigate("/");
+    } catch (error) {
+      console.error("로그인 실패:", error);
+      alert(error.message || "로그인에 실패했습니다.");
+    }
   };
 
   return (
