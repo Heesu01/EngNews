@@ -13,6 +13,7 @@ import Layout from "./components/Layout";
 import Summary from "./pages/Summary";
 import Translation from "./pages/Translation";
 import { useEffect, useState } from "react";
+import ScrollToTop from "./components/ScrollToTop";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -42,6 +43,7 @@ function App() {
         <Route path="/news/trysummary" element={<TryS />} />
         <Route path="/news/analyze" element={<Analyze />} />
       </Routes>
+      <ScrollToTop />
     </Layout>
   );
 }
