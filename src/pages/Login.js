@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
@@ -9,6 +9,7 @@ import { login } from "../api/AuthApi";
 
 const Login = ({ setIsLoggedIn }) => {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   const {
     register,
     handleSubmit,
@@ -17,6 +18,7 @@ const Login = ({ setIsLoggedIn }) => {
 
   const onSubmit = async (data) => {
     try {
+      setIsLoading(true);
       const response = await login({ email: data.id, password: data.password });
       console.log("로그인 성공:", response);
       localStorage.setItem("isLoggedIn", "true");
@@ -25,6 +27,8 @@ const Login = ({ setIsLoggedIn }) => {
     } catch (error) {
       console.error("로그인 실패:", error);
       alert(error.message || "로그인에 실패했습니다.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -35,16 +39,12 @@ const Login = ({ setIsLoggedIn }) => {
       <LoginBox onSubmit={handleSubmit(onSubmit)}>
         <InputContainer>
           <InputFilled
-            placeholder="아이디를 입력해주세요."
+            placeholder="아이디(이메일)를 입력해주세요."
             register={register("id", {
-              required: "아이디를 입력해주세요.",
-              minLength: {
-                value: 5,
-                message: "아이디는 최소 5자 이상이어야 합니다.",
-              },
-              maxLength: {
-                value: 15,
-                message: "아이디는 최대 15자 이하이어야 합니다.",
+              required: "이메일을 입력해주세요.",
+              pattern: {
+                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: "유효한 이메일 형식을 입력해주세요.",
               },
             })}
           />
@@ -65,8 +65,8 @@ const Login = ({ setIsLoggedIn }) => {
                 message: "비밀번호는 최대 20자 이하이어야 합니다.",
               },
               pattern: {
-                value: /^(?=.*[a-zA-Z])(?=.*[!@#$%^&*])/,
-                message: "비밀번호는 영어와 기호를 포함해야 합니다.",
+                value: /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*])/,
+                message: "비밀번호는 영어, 숫자, 기호를 포함해야 합니다.",
               },
             })}
           />
@@ -74,7 +74,9 @@ const Login = ({ setIsLoggedIn }) => {
             <ErrorMessage>{errors.password.message}</ErrorMessage>
           )}
         </InputContainer>
-        <Button type="submit">로그인</Button>
+        <Button type="submit" disabled={isLoading}>
+          {isLoading ? "로그인 중..." : "로그인"}
+        </Button>
         <TextBox>
           계정이 없으신가요?{" "}
           <span onClick={() => navigate("/auth/signup")}>회원가입</span>
