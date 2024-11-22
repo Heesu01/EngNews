@@ -5,6 +5,7 @@ import Button from "../components/Button";
 import InputFilled from "../components/InputFilled";
 import SignUpModal from "../components/SignupModal";
 import styled from "styled-components";
+import { signUp } from "../api/AuthApi";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -16,9 +17,19 @@ const SignUp = () => {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data) => {
-    console.log(data);
-    setIsModalOpen(true);
+  const onSubmit = async (data) => {
+    try {
+      const response = await signUp({
+        email: data.id,
+        password: data.password,
+        name: data.nickname,
+      });
+      console.log("회원가입 성공:", response);
+      setIsModalOpen(true);
+    } catch (error) {
+      console.error("회원가입 실패:", error);
+      alert(error.message || "회원가입에 실패했습니다.");
+    }
   };
 
   const password = watch("password");
