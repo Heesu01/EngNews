@@ -20,7 +20,7 @@ export const login = async (credentials) => {
 
 export const logout = async () => {
   try {
-    const response = await Axios.post("/auth/logout");
+    const response = await Axios.get("/auth/logout");
     return response.data;
   } catch (error) {
     throw error.response?.data || error.message;

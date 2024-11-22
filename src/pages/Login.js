@@ -7,7 +7,7 @@ import styled from "styled-components";
 import { RiKakaoTalkFill } from "react-icons/ri";
 import { login } from "../api/AuthApi";
 
-const Login = () => {
+const Login = ({ setIsLoggedIn }) => {
   const navigate = useNavigate();
   const {
     register,
@@ -19,6 +19,8 @@ const Login = () => {
     try {
       const response = await login({ email: data.id, password: data.password });
       console.log("로그인 성공:", response);
+      localStorage.setItem("isLoggedIn", "true");
+      setIsLoggedIn(true);
       navigate("/");
     } catch (error) {
       console.error("로그인 실패:", error);
