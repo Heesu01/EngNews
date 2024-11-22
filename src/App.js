@@ -12,14 +12,26 @@ import TryS from "./pages/TryS";
 import Layout from "./components/Layout";
 import Summary from "./pages/Summary";
 import Translation from "./pages/Translation";
+import { useEffect, useState } from "react";
+import ScrollToTop from "./components/ScrollToTop";
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const loggedIn = localStorage.getItem("isLoggedIn") === "true";
+    setIsLoggedIn(loggedIn);
+  }, []);
+
   return (
-    <Layout>
+    <Layout isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}>
       <Routes>
         <Route path="/" element={<Navigate to="/main" />} />
         <Route path="/main" element={<Main />} />
-        <Route path="/auth/login" element={<Login />} />
+        <Route
+          path="/auth/login"
+          element={<Login setIsLoggedIn={setIsLoggedIn} />}
+        />
         <Route path="/auth/signup" element={<SignUp />} />
         <Route path="/mypage" element={<MyPage />} />
         <Route path="/news/:name" element={<News />} />
@@ -31,6 +43,7 @@ function App() {
         <Route path="/news/trysummary" element={<TryS />} />
         <Route path="/news/analyze" element={<Analyze />} />
       </Routes>
+      <ScrollToTop />
     </Layout>
   );
 }

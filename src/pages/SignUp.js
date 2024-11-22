@@ -5,6 +5,7 @@ import Button from "../components/Button";
 import InputFilled from "../components/InputFilled";
 import SignUpModal from "../components/SignupModal";
 import styled from "styled-components";
+import { signUp } from "../api/AuthApi";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -16,9 +17,19 @@ const SignUp = () => {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data) => {
-    console.log(data);
-    setIsModalOpen(true);
+  const onSubmit = async (data) => {
+    try {
+      const response = await signUp({
+        email: data.id,
+        password: data.password,
+        name: data.nickname,
+      });
+      console.log("회원가입 성공:", response);
+      setIsModalOpen(true);
+    } catch (error) {
+      console.error("회원가입 실패:", error);
+      alert(error.message || "회원가입에 실패했습니다.");
+    }
   };
 
   const password = watch("password");
@@ -30,16 +41,20 @@ const SignUp = () => {
       <SignupBox onSubmit={handleSubmit(onSubmit)}>
         <InputContainer>
           <InputFilled
-            placeholder="아이디를 입력해주세요."
+            placeholder="이메일을 입력해주세요."
             register={register("id", {
-              required: "아이디를 입력해주세요.",
+              required: "이메일을 입력해주세요.",
               minLength: {
-                value: 5,
-                message: "아이디는 최소 5자 이상이어야 합니다.",
+                value: 1,
+                message: "아이디는 최소 1자 이상이어야 합니다.",
               },
               maxLength: {
-                value: 15,
-                message: "아이디는 최대 15자 이하이어야 합니다.",
+                value: 30,
+                message: "아이디는 최대 30자 이하이어야 합니다.",
+              },
+              pattern: {
+                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: "유효한 이메일 형식을 입력해주세요.",
               },
             })}
           />
@@ -60,8 +75,8 @@ const SignUp = () => {
                 message: "비밀번호는 최대 20자 이하이어야 합니다.",
               },
               pattern: {
-                value: /^(?=.*[a-zA-Z])(?=.*[!@#$%^&*])/,
-                message: "비밀번호는 영어와 기호를 포함해야 합니다.",
+                value: /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*])/,
+                message: "비밀번호는 영어, 숫자, 기호를 포함해야 합니다.",
               },
             })}
           />

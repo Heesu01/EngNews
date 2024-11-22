@@ -1,9 +1,24 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { logout } from "../api/AuthApi";
+import { FaUserCircle } from "react-icons/fa";
 
-const Header = () => {
+const Header = ({ isLoggedIn, setIsLoggedIn }) => {
   const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      alert("로그아웃 되었습니다.");
+      localStorage.removeItem("isLoggedIn");
+      setIsLoggedIn(false);
+      navigate("/auth/login");
+    } catch (error) {
+      console.error("로그아웃 실패:", error);
+      alert("로그아웃에 실패했습니다.");
+    }
+  };
 
   return (
     <Container>
@@ -15,12 +30,23 @@ const Header = () => {
         </Menu>
       </Left>
       <BtnBox>
-        <Login onClick={() => navigate("/auth/login")}>로그인</Login>
-        <Join onClick={() => navigate("/auth/signup")}>회원가입</Join>
+        {isLoggedIn ? (
+          <>
+            <Logout onClick={handleLogout}>로그아웃</Logout>
+            <ProfileIcon onClick={() => navigate("/mypage")} />
+          </>
+        ) : (
+          <>
+            <Login onClick={() => navigate("/auth/login")}>로그인</Login>
+            <Join onClick={() => navigate("/auth/signup")}>회원가입</Join>
+          </>
+        )}
       </BtnBox>
     </Container>
   );
 };
+
+export default Header;
 
 const Container = styled.div`
   width: 100%;
@@ -35,6 +61,7 @@ const Container = styled.div`
 const Left = styled.div`
   display: flex;
 `;
+
 const Logo = styled.div`
   margin-right: 50px;
   font-size: 30px;
@@ -44,6 +71,7 @@ const Logo = styled.div`
   align-items: center;
   justify-content: center;
 `;
+
 const Menu = styled.div`
   display: flex;
   gap: 50px;
@@ -51,9 +79,11 @@ const Menu = styled.div`
   align-items: center;
   justify-content: center;
 `;
+
 const Item = styled.div`
   cursor: pointer;
 `;
+
 const BtnBox = styled.div`
   display: flex;
   align-items: center;
@@ -61,11 +91,27 @@ const BtnBox = styled.div`
   gap: 30px;
   font-size: 13px;
 `;
+
 const Login = styled.div`
   cursor: pointer;
 `;
+
 const Join = styled.div`
   cursor: pointer;
 `;
 
-export default Header;
+const Logout = styled.div`
+  cursor: pointer;
+  color: ${(props) => props.theme.colors.red};
+  margin-right: -10px;
+`;
+
+const ProfileIcon = styled(FaUserCircle)`
+  font-size: 30px;
+  cursor: pointer;
+  color: ${(props) => props.theme.colors.black};
+  opacity: 70%;
+  &:hover {
+    opacity: 100%;
+  }
+`;
