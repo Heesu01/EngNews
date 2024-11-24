@@ -40,8 +40,11 @@ const Main = () => {
     fetchNytArticles();
   }, []);
 
-  const handleArticleClick = (link) => {
-    navigate(`/news/${encodeURIComponent(link)}`);
+  const handleNaverArticleClick = (link) => {
+    navigate(`/news/naver?${encodeURIComponent(link)}`);
+  };
+  const handleNytArticleClick = (link) => {
+    navigate(`/news/nyt?${encodeURIComponent(link)}`);
   };
 
   return (
@@ -62,7 +65,7 @@ const Main = () => {
                   <Article
                     key={index}
                     // onClick={() => window.open(article.link, "_blank")}
-                    onClick={() => handleArticleClick(article.link)}
+                    onClick={() => handleNaverArticleClick(article.link)}
                   >
                     <Rank>{index + 1}</Rank>
                     <ImageWrapper>
@@ -87,7 +90,7 @@ const Main = () => {
                   <Article
                     key={index}
                     // onClick={() => window.open(article.link, "_blank")}
-                    onClick={() => handleArticleClick(article.link)}
+                    onClick={() => handleNytArticleClick(article.link)}
                   >
                     <Rank>{index + 1}</Rank>
                     <ImageWrapper>

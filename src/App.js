@@ -37,7 +37,7 @@ function App() {
         <Route path="/mypage" element={<MyPage />} />
         <Route path="/naver" element={<NaverNews />} />
         <Route path="/nyt" element={<NytNews />} />
-        <Route path="/news/:newsId" element={<NewsDetail />} />
+        <Route path="/news/:name" element={<NewsDetail />} />
         <Route path="/news/summary" element={<Summary />} />
         <Route path="/news/translate" element={<Translation />} />
         <Route path="/news/related-news/:languages" element={<RelatedNews />} />
