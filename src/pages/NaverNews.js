@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import Banner from "../components/Banner";
 import Category from "../components/Category";
 
-const News = () => {
+const NaverNews = () => {
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedSort, setSelectedSort] = useState("최신순");
@@ -191,4 +191,4 @@ const ArticleContent = styled.p`
   color: ${(props) => props.theme.colors.gray};
 `;
 
-export default News;
+export default NaverNews;

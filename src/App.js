@@ -3,7 +3,8 @@ import Login from "./pages/Login";
 import Main from "./pages/Main";
 import SignUp from "./pages/SignUp";
 import MyPage from "./pages/MyPage";
-import News from "./pages/News";
+import NaverNews from "./pages/NaverNews";
+import NytNews from "./pages/NytNews";
 import NewsDetail from "./pages/NewsDetail";
 import Analyze from "./pages/Analyze";
 import RelatedNews from "./pages/RelatedNews";
@@ -34,8 +35,9 @@ function App() {
         />
         <Route path="/auth/signup" element={<SignUp />} />
         <Route path="/mypage" element={<MyPage />} />
-        <Route path="/news/:name" element={<News />} />
-        <Route path="/news/newsId" element={<NewsDetail />} />
+        <Route path="/naver" element={<NaverNews />} />
+        <Route path="/nyt" element={<NytNews />} />
+        <Route path="/news/:newsId" element={<NewsDetail />} />
         <Route path="/news/summary" element={<Summary />} />
         <Route path="/news/translate" element={<Translation />} />
         <Route path="/news/related-news/:languages" element={<RelatedNews />} />
