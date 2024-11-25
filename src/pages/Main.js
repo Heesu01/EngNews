@@ -1,25 +1,54 @@
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Banner from "../components/Banner";
 import { useNavigate } from "react-router-dom";
+import { fetchNaverTop5News, fetchNytTop5News } from "../api/NewsApi";
 
 const Main = () => {
   const navigate = useNavigate();
+  const [naverArticles, setNaverArticles] = useState([]);
+  const [nytArticles, setNytArticles] = useState([]);
+  const [naverLoading, setNaverLoading] = useState(true);
+  const [nytLoading, setNytLoading] = useState(true);
 
-  const naverArticles = [
-    { id: 1, title: "네이버 기사 1" },
-    { id: 2, title: "네이버 기사 2" },
-    { id: 3, title: "네이버 기사 3" },
-    { id: 4, title: "네이버 기사 4" },
-    { id: 5, title: "네이버 기사 5" },
-  ];
+  useEffect(() => {
+    const fetchNaverArticles = async () => {
+      try {
+        setNaverLoading(true);
+        const response = await fetchNaverTop5News();
+        setNaverArticles(response.data || []);
+      } catch (error) {
+        console.error("Error fetching Naver articles:", error);
+      } finally {
+        setNaverLoading(false);
+      }
+    };
 
-  const nyTimesArticles = [
-    { id: 1, title: "NY Times 기사 1" },
-    { id: 2, title: "NY Times 기사 2" },
-    { id: 3, title: "NY Times 기사 3" },
-    { id: 4, title: "NY Times 기사 4" },
-    { id: 5, title: "NY Times 기사 5" },
-  ];
+    const fetchNytArticles = async () => {
+      try {
+        setNytLoading(true);
+        const response = await fetchNytTop5News();
+        setNytArticles(response.data || []);
+      } catch (error) {
+        console.error("Error fetching NYT articles:", error);
+      } finally {
+        setNytLoading(false);
+      }
+    };
+
+    fetchNaverArticles();
+    fetchNytArticles();
+  }, []);
+
+  const handleNaverArticleClick = (link) => {
+    const encodedUrl = encodeURIComponent(link);
+    navigate(`/news/naver?url=${encodedUrl}`);
+  };
+
+  const handleNytArticleClick = (link) => {
+    const encodedUrl = encodeURIComponent(link);
+    navigate(`/news/nyt?url=${encodedUrl}`);
+  };
 
   return (
     <Container>
@@ -29,35 +58,51 @@ const Main = () => {
           <CardBox>
             <Title>
               네이버 TOP 5{" "}
-              <span onClick={() => navigate("/news/:name")}>자세히보기 ></span>
+              <span onClick={() => navigate("/naver")}>자세히보기 ></span>
             </Title>
             <CardWrapper>
-              {naverArticles.map((article, index) => (
-                <Article
-                  key={article.id}
-                  onClick={() => navigate("/news/:newsId")}
-                >
-                  <Rank>{index + 1}</Rank>
-                  <ArticleTitle>{article.title}</ArticleTitle>
-                </Article>
-              ))}
+              {naverLoading ? (
+                <LoadingText>네이버 기사를 불러오는 중입니다...</LoadingText>
+              ) : (
+                naverArticles.map((article, index) => (
+                  <Article
+                    key={index}
+                    // onClick={() => window.open(article.link, "_blank")}
+                    onClick={() => handleNaverArticleClick(article.link)}
+                  >
+                    <Rank>{index + 1}</Rank>
+                    <ImageWrapper>
+                      <img src={article.imageUrl} alt={article.title} />
+                    </ImageWrapper>
+                    <ArticleTitle>{article.title}</ArticleTitle>
+                  </Article>
+                ))
+              )}
             </CardWrapper>
           </CardBox>
           <CardBox>
             <Title>
               NY Times TOP 5{" "}
-              <span onClick={() => navigate("/news/:name")}>자세히보기 ></span>
+              <span onClick={() => navigate("/nyt")}>자세히보기 ></span>
             </Title>
             <CardWrapper>
-              {nyTimesArticles.map((article, index) => (
-                <Article
-                  key={article.id}
-                  onClick={() => navigate("/news/:newsId")}
-                >
-                  <Rank>{index + 1}</Rank>
-                  <ArticleTitle>{article.title}</ArticleTitle>
-                </Article>
-              ))}
+              {nytLoading ? (
+                <LoadingText>NY Times 기사를 불러오는 중입니다...</LoadingText>
+              ) : (
+                nytArticles.map((article, index) => (
+                  <Article
+                    key={index}
+                    // onClick={() => window.open(article.link, "_blank")}
+                    onClick={() => handleNytArticleClick(article.link)}
+                  >
+                    <Rank>{index + 1}</Rank>
+                    <ImageWrapper>
+                      <img src={article.imageUrl} alt={article.title} />
+                    </ImageWrapper>
+                    <ArticleTitle>{article.title}</ArticleTitle>
+                  </Article>
+                ))
+              )}
             </CardWrapper>
           </CardBox>
         </CardContainer>
@@ -67,6 +112,7 @@ const Main = () => {
 };
 
 const Container = styled.div``;
+
 const BottomContainer = styled.div`
   padding: 50px 0;
   width: 90%;
@@ -99,7 +145,7 @@ const Title = styled.div`
 `;
 const CardWrapper = styled.div`
   width: 100%;
-  height: 500px;
+  height: auto;
   border: 1px solid ${(props) => props.theme.colors.navy};
   border-radius: 5px;
   padding: 30px;
@@ -125,8 +171,28 @@ const Rank = styled.div`
   color: ${(props) => props.theme.colors.blue};
 `;
 
+const ImageWrapper = styled.div`
+  width: 80px;
+  height: 80px;
+  margin-right: 15px;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 5px;
+  }
+`;
+
 const ArticleTitle = styled.div`
   font-size: 20px;
+  flex: 1;
+`;
+
+const LoadingText = styled.div`
+  text-align: center;
+  font-size: 16px;
+  color: ${(props) => props.theme.colors.gray};
+  min-height: 560px;
 `;
 
 export default Main;

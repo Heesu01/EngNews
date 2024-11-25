@@ -25,8 +25,8 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
       <Left>
         <Logo onClick={() => navigate("/")}>ENGNEWS</Logo>
         <Menu>
-          <Item onClick={() => navigate("/news/:name")}>네이버 기사</Item>
-          <Item onClick={() => navigate("/news/:name")}>NY Times 기사</Item>
+          <Item onClick={() => navigate("/naver")}>네이버 기사</Item>
+          <Item onClick={() => navigate("/nyt")}>NY Times 기사</Item>
         </Menu>
       </Left>
       <BtnBox>
