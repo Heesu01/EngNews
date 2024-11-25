@@ -1,48 +1,104 @@
-import React, { useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import styled from "styled-components";
 import { FaSearch } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
-
+import { fetchNytCategories } from "../api/CategoryApi";
+import {
+  fetchNytTop5News,
+  fetchNytArticlesByCategory,
+  fetchNytArticlesByKeyword,
+} from "../api/NewsApi";
 import Banner from "../components/Banner";
 import Category from "../components/Category";
+import { useNavigate } from "react-router-dom";
 
 const NytNews = () => {
   const navigate = useNavigate();
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("Top5");
   const [selectedSort, setSelectedSort] = useState("최신순");
+  const [articles, setArticles] = useState([]);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
-  const categories = [
-    "Top5",
-    "키워드 맞춤",
-    "정치",
-    "IT/과학",
-    "사회",
-    "경제",
-    "생활/문화",
-    "세계",
-  ];
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetchNytCategories();
+        setCategories([
+          { id: "top5", category: "Top5" },
+          { id: "keyword", category: "키워드 맞춤" },
+          ...response.data.categories,
+        ]);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
 
-  const articles = [
-    { id: 1, title: "기사 제목 1", content: "간략한 내용 1" },
-    { id: 2, title: "기사 제목 2", content: "간략한 내용 2" },
-    { id: 3, title: "기사 제목 3", content: "간략한 내용 3" },
-    { id: 4, title: "기사 제목 4", content: "간략한 내용 4" },
-    { id: 4, title: "기사 제목 4", content: "간략한 내용 4" },
-    { id: 4, title: "기사 제목 4", content: "간략한 내용 4" },
-    { id: 4, title: "기사 제목 4", content: "간략한 내용 4" },
-    { id: 4, title: "기사 제목 4", content: "간략한 내용 4" },
-  ];
+    fetchCategories();
+  }, []);
+
+  const fetchArticles = useCallback(async () => {
+    if (loading) return;
+
+    try {
+      setLoading(true);
+      let response;
+
+      if (selectedCategory === "Top5") {
+        response = await fetchNytTop5News();
+        setHasMore(false);
+      } else if (selectedCategory === "키워드 맞춤") {
+        response = await fetchNytArticlesByKeyword();
+        setHasMore(response.data?.length > 0);
+      } else {
+        await fetchNytArticlesByCategory(selectedCategory, page);
+        setHasMore(response.data?.length > 0);
+      }
+
+      setArticles((prev) =>
+        page === 1 ? response.data : [...prev, ...response.data]
+      );
+    } catch (error) {
+      console.error("Error fetching articles:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedCategory, page, loading]);
+
+  useEffect(() => {
+    setArticles([]);
+    setPage(1);
+    setHasMore(true);
+  }, [selectedCategory]);
+
+  useEffect(() => {
+    fetchArticles();
+  }, [page, fetchArticles]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + document.documentElement.scrollTop + 100 >=
+        document.documentElement.offsetHeight
+      ) {
+        if (hasMore && !loading) {
+          setPage((prevPage) => prevPage + 1);
+        }
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [hasMore, loading]);
 
   const selectCategory = (category) => {
-    if (selectedCategory === category) {
-      setSelectedCategory(null);
-    } else {
-      setSelectedCategory(category);
-    }
+    setSelectedCategory(category);
   };
 
-  const handleArticleClick = (articleId) => {
-    navigate(`/news/newsId`);
+  const handleNytArticleClick = (link) => {
+    const encodedUrl = encodeURIComponent(link);
+    navigate(`/news/nyt?url=${encodedUrl}`);
   };
 
   return (
@@ -74,22 +130,31 @@ const NytNews = () => {
           {categories.map((category, index) => (
             <Category
               key={index}
-              label={category}
-              selected={selectedCategory === category}
-              onClick={() => selectCategory(category)}
+              label={category.category}
+              selected={selectedCategory === category.category}
+              onClick={() => selectCategory(category.category)}
             />
           ))}
         </FilterContainer>
         <ContentContainer>
-          {articles.map((article) => (
+          {articles.map((article, index) => (
             <ArticleCard
-              key={article.id}
-              onClick={() => handleArticleClick(article.id)}
+              key={index}
+              onClick={() => handleNytArticleClick(article.link)}
             >
+              <ArticleImage src={article.imageUrl} alt={article.title} />
               <ArticleTitle>{article.title}</ArticleTitle>
-              <ArticleContent>{article.content}</ArticleContent>
+              <ArticleContent>
+                {article.content
+                  ? `${article.content.slice(0, 100)}...`
+                  : "기사를 보려면 클릭하세요."}
+              </ArticleContent>
             </ArticleCard>
           ))}
+          {loading &&
+            (selectedCategory !== "Top5" || articles.length === 0) && (
+              <LoadingText>기사를 불러오는 중입니다...</LoadingText>
+            )}
         </ContentContainer>
       </BottomContainer>
     </Container>
@@ -162,7 +227,6 @@ const FilterContainer = styled.div`
 
 const ContentContainer = styled.div`
   width: 100%;
-
   height: auto;
   margin-top: 30px;
   display: flex;
@@ -173,12 +237,22 @@ const ContentContainer = styled.div`
 
 const ArticleCard = styled.div`
   width: 49%;
-  min-height: 170px;
+  min-height: 230px;
   border: 1px solid ${(props) => props.theme.colors.gray2};
   padding: 16px;
   border-radius: 8px;
   background-color: ${(props) => props.theme.colors.white};
   cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+`;
+
+const ArticleImage = styled.img`
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 5px;
 `;
 
 const ArticleTitle = styled.h3`
@@ -188,6 +262,12 @@ const ArticleTitle = styled.h3`
 
 const ArticleContent = styled.p`
   font-size: 14px;
+  color: ${(props) => props.theme.colors.gray};
+`;
+
+const LoadingText = styled.div`
+  text-align: center;
+  font-size: 16px;
   color: ${(props) => props.theme.colors.gray};
 `;
 
