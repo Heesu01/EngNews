@@ -41,10 +41,13 @@ const Main = () => {
   }, []);
 
   const handleNaverArticleClick = (link) => {
-    navigate(`/news/naver?${encodeURIComponent(link)}`);
+    const encodedUrl = encodeURIComponent(link);
+    navigate(`/news/naver?url=${encodedUrl}`);
   };
+
   const handleNytArticleClick = (link) => {
-    navigate(`/news/nyt?${encodeURIComponent(link)}`);
+    const encodedUrl = encodeURIComponent(link);
+    navigate(`/news/nyt?url=${encodedUrl}`);
   };
 
   return (
