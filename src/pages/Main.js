@@ -192,6 +192,7 @@ const LoadingText = styled.div`
   text-align: center;
   font-size: 16px;
   color: ${(props) => props.theme.colors.gray};
+  min-height: 560px;
 `;
 
 export default Main;
