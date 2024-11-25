@@ -56,3 +56,34 @@ export const fetchNytArticlesByKeyword = async () => {
     throw error.response?.data || error.message;
   }
 };
+
+export const fetchArticleDetail = async (newsType, url) => {
+  try {
+    const response = await Axios.get(`/news/${newsType}`, {
+      params: { url },
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};
+
+export const likeArticle = async (articleData) => {
+  try {
+    const response = await Axios.post("/articles-like", {
+      originalUrl: articleData.originalUrl,
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};
+
+export const deleteLikedArticle = async (articleId) => {
+  try {
+    const response = await Axios.delete(`/articles-like/${articleId}`);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};
