@@ -33,10 +33,14 @@ export const fetchNaverArticlesByCategory = async (
   }
 };
 
-export const fetchNytArticlesByCategory = async (category, page) => {
+export const fetchNytArticlesByCategory = async (
+  category,
+  page,
+  sort = "newest"
+) => {
   try {
     const response = await Axios.get(`/news/nyt/categories`, {
-      params: { category, page },
+      params: { category, page, sort },
     });
     return response.data;
   } catch (error) {
@@ -54,9 +58,12 @@ export const fetchNaverArticlesByKeyword = async (sort = "date") => {
     throw error.response?.data || error.message;
   }
 };
-export const fetchNytArticlesByKeyword = async () => {
+
+export const fetchNytArticlesByKeyword = async (sort = "newest") => {
   try {
-    const response = await Axios.get("/news/nyt/keyword");
+    const response = await Axios.get("/news/naver/keyword", {
+      params: { sort },
+    });
     return response.data;
   } catch (error) {
     throw error.response?.data || error.message;
