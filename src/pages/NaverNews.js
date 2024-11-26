@@ -15,7 +15,7 @@ const NaverNews = () => {
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("Top5");
-  const [selectedSort, setSelectedSort] = useState("최신순");
+  const [selectedSort, setSelectedSort] = useState("date");
   const [articles, setArticles] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -49,10 +49,14 @@ const NaverNews = () => {
         response = await fetchNaverTop5News();
         setHasMore(false);
       } else if (selectedCategory === "키워드 맞춤") {
-        response = await fetchNaverArticlesByKeyword();
+        response = await fetchNaverArticlesByKeyword(selectedSort);
         setHasMore(response.data?.length > 0);
       } else {
-        response = await fetchNaverArticlesByCategory(selectedCategory, page);
+        response = await fetchNaverArticlesByCategory(
+          selectedCategory,
+          page,
+          selectedSort
+        );
         setHasMore(response.data?.length > 0);
       }
 
@@ -64,13 +68,13 @@ const NaverNews = () => {
     } finally {
       setLoading(false);
     }
-  }, [selectedCategory, page, loading]);
+  }, [selectedCategory, page, selectedSort, loading]);
 
   useEffect(() => {
     setArticles([]);
     setPage(1);
     setHasMore(true);
-  }, [selectedCategory]);
+  }, [selectedCategory, selectedSort]);
 
   useEffect(() => {
     fetchArticles();
@@ -96,6 +100,10 @@ const NaverNews = () => {
     setSelectedCategory(category);
   };
 
+  const selectSortOption = (sortOption) => {
+    setSelectedSort(sortOption);
+  };
+
   const handleNaverArticleClick = (link) => {
     const encodedUrl = encodeURIComponent(link);
     navigate(`/news/naver?url=${encodedUrl}`);
@@ -112,17 +120,17 @@ const NaverNews = () => {
           </InputWrapper>
           <SortContainer>
             <SortOption
-              selected={selectedSort === "최신순"}
-              onClick={() => setSelectedSort("최신순")}
+              selected={selectedSort === "date"}
+              onClick={() => selectSortOption("date")}
             >
               최신순
             </SortOption>
             <p>|</p>
             <SortOption
-              selected={selectedSort === "인기순"}
-              onClick={() => setSelectedSort("인기순")}
+              selected={selectedSort === "sim"}
+              onClick={() => selectSortOption("sim")}
             >
-              인기순
+              정확도순
             </SortOption>
           </SortContainer>
         </SearchContainer>
@@ -199,7 +207,7 @@ const FaSearchIcon = styled(FaSearch)`
 `;
 
 const SortContainer = styled.div`
-  width: 120px;
+  width: 140px;
   display: flex;
   gap: 10px;
   justify-content: center;
