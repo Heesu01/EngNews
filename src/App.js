@@ -38,12 +38,15 @@ function App() {
         <Route path="/naver" element={<NaverNews />} />
         <Route path="/nyt" element={<NytNews />} />
         <Route path="/news/:name" element={<NewsDetail />} />
-        <Route path="/news/summary" element={<Summary />} />
-        <Route path="/news/translate" element={<Translation />} />
-        <Route path="/news/related-news/:languages" element={<RelatedNews />} />
-        <Route path="/news/trytranslate" element={<TryT />} />
-        <Route path="/news/trysummary" element={<TryS />} />
-        <Route path="/news/analyze" element={<Analyze />} />
+        <Route path="/news/:name/summary" element={<Summary />} />
+        <Route path="/news/:name/translate" element={<Translation />} />
+        <Route
+          path="/news/:name/related-news/:languages"
+          element={<RelatedNews />}
+        />
+        <Route path="/news/:name/trytranslate" element={<TryT />} />
+        <Route path="/news/:name/trysummary" element={<TryS />} />
+        <Route path="/news/:name/analyze" element={<Analyze />} />
       </Routes>
       <ScrollToTop />
     </Layout>
