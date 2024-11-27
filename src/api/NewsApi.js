@@ -85,6 +85,7 @@ export const likeArticle = async (articleData) => {
   try {
     const response = await Axios.post("/articles-like", {
       originalUrl: articleData.originalUrl,
+      news: articleData.news,
     });
     return response.data;
   } catch (error) {
