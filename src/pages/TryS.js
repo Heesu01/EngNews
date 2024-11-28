@@ -1,16 +1,24 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
+import { Axios } from "../api/Axios";
 import LeftBar from "../components/LeftBar";
 import Article from "../components/Article";
 
 const TryS = () => {
-  const [activeTab, setActiveTab] = useState("translate");
+  const [activeTab, setActiveTab] = useState("summary");
   const [messages, setMessages] = useState([]);
-  const [inputValue, setInputValue] = useState("");
+  const [summaryInput, setSummaryInput] = useState("");
+  const [userInput, setUserInput] = useState("");
+  const [isSummarySet, setIsSummarySet] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const messagesRef = useRef(null);
+
+  const handleNavigation = (path) => {
+    const params = location.search;
+    navigate(`${path}${params}`);
+  };
 
   useEffect(() => {
     if (location.pathname === "/news/trytranslate") {
@@ -23,22 +31,55 @@ const TryS = () => {
   const handleTabClick = (tab) => {
     setActiveTab(tab);
     if (tab === "translate") {
-      navigate("/news/trytranslate");
+      handleNavigation("/news/:name/trytranslate");
     } else if (tab === "summary") {
-      navigate("/news/trysummary");
+      handleNavigation("/news/:name/trysummary");
     }
   };
 
-  const handleSend = () => {
-    if (inputValue.trim() === "") return;
-    const newMessage = { type: "user", text: inputValue };
-    const responseMessage = {
-      type: "bot",
-      text: `피드백 결과: ${inputValue}`,
-    };
+  const handleSetSummaryInput = () => {
+    if (summaryInput.trim() === "") return;
+    setIsSummarySet(true);
+    setMessages((prev) => [
+      ...prev,
+      { type: "info", text: `요약할 문장: ${summaryInput}` },
+    ]);
+  };
 
-    setMessages((prev) => [...prev, newMessage, responseMessage]);
-    setInputValue("");
+  const handleSend = async () => {
+    if (!isSummarySet) {
+      alert("먼저 요약할 문장을 입력해주세요.");
+      return;
+    }
+    if (userInput.trim() === "") return;
+
+    const userMessage = { type: "user", text: userInput };
+    setMessages((prev) => [...prev, userMessage]);
+
+    try {
+      const response = await Axios.post("/try-summarize", {
+        message: userInput,
+        news_content: summaryInput,
+      });
+
+      const botMessage = {
+        type: "bot",
+        text: response.data.data.gpt_answer.replace(
+          /^{\s*"gpt_answer":\s*"|"\s*}$/g,
+          ""
+        ),
+      };
+      setMessages((prev) => [...prev, botMessage]);
+    } catch (error) {
+      console.error("API 요청 실패:", error);
+      const errorMessage = {
+        type: "bot",
+        text: "요약 요청에 실패했습니다. 다시 시도해주세요.",
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
+      setUserInput("");
+    }
   };
 
   useEffect(() => {
@@ -67,23 +108,34 @@ const TryS = () => {
           </Tab>
         </Tabs>
         <Content>
-          {activeTab === "translate" && (
-            <p>여기는 번역해보기 탭의 내용을 표시합니다.</p>
-          )}
           {activeTab === "summary" && (
             <ChatContainer>
+              {!isSummarySet && (
+                <InitialInputContainer>
+                  <Input
+                    value={summaryInput}
+                    onChange={(e) => setSummaryInput(e.target.value)}
+                    placeholder="요약할 내용을 입력하세요."
+                  />
+                  <SetButton onClick={handleSetSummaryInput}>설정</SetButton>
+                </InitialInputContainer>
+              )}
               <Messages ref={messagesRef}>
                 {messages.map((msg, idx) => (
-                  <MessageBubble key={idx} isUser={msg.type === "user"}>
+                  <MessageBubble
+                    key={idx}
+                    isUser={msg.type === "user"}
+                    isInfo={msg.type === "info"}
+                  >
                     {msg.text}
                   </MessageBubble>
                 ))}
               </Messages>
               <InputContainer>
                 <Input
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  placeholder="요약 내용을 입력하세요."
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                  placeholder="요약 요청 메시지를 입력하세요."
                 />
                 <SendButton onClick={handleSend}>전송</SendButton>
               </InputContainer>
@@ -95,6 +147,7 @@ const TryS = () => {
   );
 };
 
+// Styled Components
 const Container = styled.div`
   padding: 20px 40px;
   width: 100%;
@@ -141,6 +194,11 @@ const ChatContainer = styled.div`
   height: 600px;
 `;
 
+const InitialInputContainer = styled.div`
+  display: flex;
+  margin-bottom: 10px;
+`;
+
 const Messages = styled.div`
   flex: 1;
   padding: 10px;
@@ -155,10 +213,19 @@ const MessageBubble = styled.div`
   padding: 10px 15px;
   border-radius: 20px;
   background-color: ${(props) =>
-    props.isUser ? props.theme.colors.navy : props.theme.colors.lightBlue};
+    props.isInfo
+      ? props.theme.colors.lightGray
+      : props.isUser
+      ? props.theme.colors.navy
+      : props.theme.colors.lightBlue};
   color: ${(props) =>
-    props.isUser ? props.theme.colors.white : props.theme.colors.black};
-  align-self: ${(props) => (props.isUser ? "flex-end" : "flex-start")};
+    props.isInfo
+      ? props.theme.colors.black
+      : props.isUser
+      ? props.theme.colors.white
+      : props.theme.colors.black};
+  align-self: ${(props) =>
+    props.isUser || props.isInfo ? "flex-end" : "flex-start"};
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
 
@@ -167,14 +234,27 @@ const InputContainer = styled.div`
   padding: 10px;
   border-top: 1px solid ${(props) => props.theme.colors.gray};
   background-color: white;
-  margin-top: 10px;
 `;
 
 const Input = styled.input`
+  flex: 1;
   border: 1px solid ${(props) => props.theme.colors.gray};
   border-radius: 4px;
   font-size: 14px;
   padding: 5px;
+`;
+
+const SetButton = styled.button`
+  margin-left: 10px;
+  padding: 5px 10px;
+  background-color: ${(props) => props.theme.colors.navy};
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: ${(props) => props.theme.colors.darkNavy};
+  }
 `;
 
 const SendButton = styled.button`
