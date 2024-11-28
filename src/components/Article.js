@@ -39,13 +39,14 @@ const Article = () => {
     try {
       const params = new URLSearchParams(location.search);
       const originalUrl = params.get("url");
+      const newsType = location.pathname.includes("nyt") ? "nyt" : "naver";
 
       if (!originalUrl) {
         alert("URL을 가져오지 못했습니다.");
         return;
       }
 
-      await likeArticle({ originalUrl });
+      await likeArticle({ originalUrl, news: newsType });
 
       setLiked(true);
       alert("기사 찜하기 성공!");
