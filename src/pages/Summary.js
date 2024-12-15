@@ -3,9 +3,13 @@ import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import LeftBar from "../components/LeftBar";
 import Article from "../components/Article";
+import { postSummarize } from "../api/NewsApi";
 
 const Summary = () => {
   const [activeTab, setActiveTab] = useState("translate");
+  const [summary, setSummary] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -25,6 +29,27 @@ const Summary = () => {
       navigate("/news/summary");
     }
   };
+
+  const fetchSummary = async (content) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await postSummarize({ news_content: content });
+      setSummary(response.data.gpt_answer);
+    } catch (err) {
+      setError(err.message || "요약 요청 중 문제가 발생했습니다.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === "summary") {
+      const articleContent = "여기서 기사 내용을 가져오세요";
+      fetchSummary(articleContent);
+    }
+  }, [activeTab]);
 
   return (
     <Container>
@@ -47,7 +72,13 @@ const Summary = () => {
         </Tabs>
         <Content>
           {activeTab === "translate" && <p>번역된 내용을 여기에 표시합니다.</p>}
-          {activeTab === "summary" && <p>요약된 내용을 여기에 표시합니다.</p>}
+          {activeTab === "summary" && (
+            <>
+              {loading && <p>요약 요청 중...</p>}
+              {error && <p style={{ color: "red" }}>{error}</p>}
+              {summary && <p>{summary}</p>}
+            </>
+          )}
         </Content>
       </RightBar>
     </Container>
