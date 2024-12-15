@@ -14,42 +14,10 @@ const Translation = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const fetchArticle = useCallback(async () => {
-    try {
-      const params = new URLSearchParams(location.search);
-      const url = params.get("url");
-      const newsType = location.pathname.includes("nyt") ? "nyt" : "naver";
-
-      if (!url) throw new Error("URL 파라미터를 가져오지 못했습니다.");
-
-      const response = await fetchArticleDetail(newsType, url);
-      setArticleData(response.data);
-    } catch (err) {
-      setError(err.message || "기사 내용을 가져오지 못했습니다.");
-    }
-  }, [location]);
-
-  const fetchTranslation = useCallback(async () => {
-    if (!articleData?.content) return;
-
-    try {
-      setTranslationLoading(true);
-      setError(null);
-
-      const response = await postTranslation({
-        news_content: articleData.content,
-      });
-      setTranslation(response.gpt_answer);
-    } catch (err) {
-      setError(err.message || "번역 요청 중 문제가 발생했습니다.");
-    } finally {
-      setTranslationLoading(false);
-    }
-  }, [articleData]);
-
-  useEffect(() => {
-    fetchArticle();
-  }, [fetchArticle]);
+  const extractNameFromPath = useCallback(() => {
+    const match = location.pathname.match(/\/news\/([^/]+)/);
+    return match ? match[1] : null;
+  }, [location.pathname]);
 
   useEffect(() => {
     if (activeTab === "translate" && articleData) {
@@ -58,13 +26,7 @@ const Translation = () => {
   }, [activeTab, fetchTranslation, articleData]);
 
   const handleTabClick = (tab) => {
-    const params = new URLSearchParams(location.search);
-    const url = params.get("url");
-    if (!url) {
-      setError("URL이 존재하지 않습니다.");
-      return;
-    }
-
+    const name = extractNameFromPath();
     if (tab === "translate") {
       navigate(`/news/naver/translate?url=${url}`);
     } else if (tab === "summary") {
