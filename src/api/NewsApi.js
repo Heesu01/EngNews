@@ -110,3 +110,12 @@ export const postSummarize = async (body) => {
     throw error.response?.data || error.message;
   }
 };
+
+export const postTranslation = async (body) => {
+  try {
+    const response = await Axios.post("/translate", body);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};

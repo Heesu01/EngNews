@@ -3,32 +3,72 @@ import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import LeftBar from "../components/LeftBar";
 import Article from "../components/Article";
+import { fetchArticleDetail, postTranslation } from "../api/NewsApi";
 
 const Translation = () => {
   const [activeTab, setActiveTab] = useState("translate");
+  const [translation, setTranslation] = useState(null);
+  const [translationLoading, setTranslationLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [articleData, setArticleData] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
 
-  const extractNameFromPath = useCallback(() => {
-    const match = location.pathname.match(/\/news\/([^/]+)/);
-    return match ? match[1] : null;
-  }, [location.pathname]);
+  const fetchArticle = useCallback(async () => {
+    try {
+      const params = new URLSearchParams(location.search);
+      const url = params.get("url");
+      const newsType = location.pathname.includes("nyt") ? "nyt" : "naver";
+
+      if (!url) throw new Error("URL 파라미터를 가져오지 못했습니다.");
+
+      const response = await fetchArticleDetail(newsType, url);
+      setArticleData(response.data);
+    } catch (err) {
+      setError(err.message || "기사 내용을 가져오지 못했습니다.");
+    }
+  }, [location]);
+
+  const fetchTranslation = useCallback(async () => {
+    if (!articleData?.content) return;
+
+    try {
+      setTranslationLoading(true);
+      setError(null);
+
+      const response = await postTranslation({
+        news_content: articleData.content,
+      });
+      setTranslation(response.gpt_answer);
+    } catch (err) {
+      setError(err.message || "번역 요청 중 문제가 발생했습니다.");
+    } finally {
+      setTranslationLoading(false);
+    }
+  }, [articleData]);
 
   useEffect(() => {
-    const name = extractNameFromPath();
-    if (location.pathname.startsWith(`/news/${name}/translate`)) {
-      setActiveTab("translate");
-    } else if (location.pathname.startsWith(`/news/${name}/summary`)) {
-      setActiveTab("summary");
+    fetchArticle();
+  }, [fetchArticle]);
+
+  useEffect(() => {
+    if (activeTab === "translate" && articleData) {
+      fetchTranslation();
     }
-  }, [extractNameFromPath, location.pathname]);
+  }, [activeTab, fetchTranslation, articleData]);
 
   const handleTabClick = (tab) => {
-    const name = extractNameFromPath();
+    const params = new URLSearchParams(location.search);
+    const url = params.get("url");
+    if (!url) {
+      setError("URL이 존재하지 않습니다.");
+      return;
+    }
+
     if (tab === "translate") {
-      navigate(`/news/${name}/translate${location.search}`);
+      navigate(`/news/naver/translate?url=${url}`);
     } else if (tab === "summary") {
-      navigate(`/news/${name}/summary${location.search}`);
+      navigate(`/news/naver/summary?url=${url}`);
     }
     setActiveTab(tab);
   };
@@ -53,7 +93,13 @@ const Translation = () => {
           </Tab>
         </Tabs>
         <Content>
-          {activeTab === "translate" && <p>번역된 내용을 여기에 표시합니다.</p>}
+          {activeTab === "translate" && (
+            <>
+              {translationLoading && <p>번역 요청 중...</p>}{" "}
+              {error && <p style={{ color: "red" }}>{error}</p>}
+              {translation && <p>{translation}</p>}
+            </>
+          )}
           {activeTab === "summary" && <p>요약된 내용을 여기에 표시합니다.</p>}
         </Content>
       </RightBar>
