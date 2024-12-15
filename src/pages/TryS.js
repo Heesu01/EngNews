@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { Axios } from "../api/Axios";
@@ -15,26 +15,28 @@ const TryS = () => {
   const location = useLocation();
   const messagesRef = useRef(null);
 
-  const handleNavigation = (path) => {
-    const params = location.search;
-    navigate(`${path}${params}`);
-  };
-
-  useEffect(() => {
-    if (location.pathname === "/news/trytranslate") {
-      setActiveTab("translate");
-    } else if (location.pathname === "/news/trysummary") {
-      setActiveTab("summary");
-    }
+  const extractNameFromPath = useCallback(() => {
+    const match = location.pathname.match(/\/news\/([^/]+)/);
+    return match ? match[1] : null;
   }, [location.pathname]);
 
-  const handleTabClick = (tab) => {
-    setActiveTab(tab);
-    if (tab === "translate") {
-      handleNavigation("/news/:name/trytranslate");
-    } else if (tab === "summary") {
-      handleNavigation("/news/:name/trysummary");
+  useEffect(() => {
+    const name = extractNameFromPath();
+    if (location.pathname.startsWith(`/news/${name}/trytranslate`)) {
+      setActiveTab("translate");
+    } else if (location.pathname.startsWith(`/news/${name}/trysummary`)) {
+      setActiveTab("summary");
     }
+  }, [extractNameFromPath, location.pathname]);
+
+  const handleTabClick = (tab) => {
+    const name = extractNameFromPath();
+    if (tab === "translate") {
+      navigate(`/news/${name}/trytranslate${location.search}`);
+    } else if (tab === "summary") {
+      navigate(`/news/${name}/trysummary${location.search}`);
+    }
+    setActiveTab(tab);
   };
 
   const handleSetSummaryInput = () => {
@@ -147,7 +149,6 @@ const TryS = () => {
   );
 };
 
-// Styled Components
 const Container = styled.div`
   padding: 20px 40px;
   width: 100%;

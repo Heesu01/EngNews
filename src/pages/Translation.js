@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import LeftBar from "../components/LeftBar";
@@ -9,21 +9,28 @@ const Translation = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  useEffect(() => {
-    if (location.pathname === "/news/translate") {
-      setActiveTab("translate");
-    } else if (location.pathname === "/news/summary") {
-      setActiveTab("summary");
-    }
+  const extractNameFromPath = useCallback(() => {
+    const match = location.pathname.match(/\/news\/([^/]+)/);
+    return match ? match[1] : null;
   }, [location.pathname]);
 
-  const handleTabClick = (tab) => {
-    setActiveTab(tab);
-    if (tab === "translate") {
-      navigate("/news/translate");
-    } else if (tab === "summary") {
-      navigate("/news/summary");
+  useEffect(() => {
+    const name = extractNameFromPath();
+    if (location.pathname.startsWith(`/news/${name}/translate`)) {
+      setActiveTab("translate");
+    } else if (location.pathname.startsWith(`/news/${name}/summary`)) {
+      setActiveTab("summary");
     }
+  }, [extractNameFromPath, location.pathname]);
+
+  const handleTabClick = (tab) => {
+    const name = extractNameFromPath();
+    if (tab === "translate") {
+      navigate(`/news/${name}/translate${location.search}`);
+    } else if (tab === "summary") {
+      navigate(`/news/${name}/summary${location.search}`);
+    }
+    setActiveTab(tab);
   };
 
   return (

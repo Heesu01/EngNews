@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import LeftBar from "../components/LeftBar";
@@ -9,21 +9,30 @@ const RelatedNews = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  useEffect(() => {
-    if (location.pathname === "/news/related-news/:korea") {
-      setActiveTab("korean");
-    } else if (location.pathname === "/news/related-news/:english") {
-      setActiveTab("english");
-    }
+  const extractNameFromPath = useCallback(() => {
+    const match = location.pathname.match(/\/news\/([^/]+)/);
+    return match ? match[1] : null;
   }, [location.pathname]);
 
-  const handleTabClick = (tab) => {
-    setActiveTab(tab);
-    if (tab === "korean") {
-      navigate("/news/related-news/korean");
-    } else if (tab === "english") {
-      navigate("/news/related-news/english");
+  useEffect(() => {
+    const name = extractNameFromPath();
+    if (location.pathname.startsWith(`/news/${name}/related-news/korean`)) {
+      setActiveTab("korean");
+    } else if (
+      location.pathname.startsWith(`/news/${name}/related-news/english`)
+    ) {
+      setActiveTab("english");
     }
+  }, [extractNameFromPath, location.pathname]);
+
+  const handleTabClick = (tab) => {
+    const name = extractNameFromPath();
+    if (tab === "korean") {
+      navigate(`/news/${name}/related-news/korean${location.search}`);
+    } else if (tab === "english") {
+      navigate(`/news/${name}/related-news/english${location.search}`);
+    }
+    setActiveTab(tab);
   };
 
   return (

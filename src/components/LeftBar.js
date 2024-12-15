@@ -11,8 +11,13 @@ const LeftBar = () => {
   const location = useLocation();
 
   const handleNavigation = (path) => {
+    const currentPath = location.pathname;
+    const nameMatch = currentPath.match(/\/news\/([^/]+)/);
+    const name = nameMatch ? nameMatch[1] : "default";
+
     const params = location.search;
-    navigate(`${path}${params}`);
+
+    navigate(`/news/${name}${path}${params}`);
   };
 
   return (
@@ -20,29 +25,29 @@ const LeftBar = () => {
       <SectionTitle>AI 기능 선택</SectionTitle>
       <Section>
         <Button
-          isActive={location.pathname === "/news/:name/translate"}
-          onClick={() => handleNavigation("/news/:name/translate")}
+          isActive={location.pathname === "/translate"}
+          onClick={() => handleNavigation("/translate")}
         >
           <BsTranslate />
           <span>뉴스 번역</span>
         </Button>
         <Button
-          isActive={location.pathname === "/news/:name/summary"}
-          onClick={() => handleNavigation("/news/:name/summary")}
+          isActive={location.pathname === "/summary"}
+          onClick={() => handleNavigation("/summary")}
         >
           <LuText />
           <span>뉴스 요약</span>
         </Button>
         <Button
-          isActive={location.pathname === "/news/:name/trytranslate"}
-          onClick={() => handleNavigation("/news/:name/trytranslate")}
+          isActive={location.pathname === "/trytranslate"}
+          onClick={() => handleNavigation("/trytranslate")}
         >
           <IoChatbubbleSharp />
           <span>번역해보기</span>
         </Button>
         <Button
-          isActive={location.pathname === "/news/:name/trysummary"}
-          onClick={() => handleNavigation("/news/:name/trysummary")}
+          isActive={location.pathname === "/trysummary"}
+          onClick={() => handleNavigation("/trysummary")}
         >
           <IoChatbubbleOutline />
           <span>요약해보기</span>
@@ -51,15 +56,15 @@ const LeftBar = () => {
       <SectionTitle>관련기사 탐색</SectionTitle>
       <Section>
         <Button
-          isActive={location.pathname === "/news/:name/related-news/:korea"}
-          onClick={() => handleNavigation("/news/:name/related-news/:korea")}
+          isActive={location.pathname === "/related-news"}
+          onClick={() => handleNavigation("/related-news")}
         >
           <FaNewspaper />
           <span>관련한국기사</span>
         </Button>
         <Button
-          isActive={location.pathname === "/news/:name/related-news/:english"}
-          onClick={() => handleNavigation("/news/:name/related-news/:english")}
+          isActive={location.pathname === "/related-news"}
+          onClick={() => handleNavigation("/related-news")}
         >
           <FaRegNewspaper />
           <span>관련외국기사</span>
