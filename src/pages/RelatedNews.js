@@ -1,12 +1,11 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import styled from "styled-components";
 import LeftBar from "../components/LeftBar";
 import Article from "../components/Article";
 
 const RelatedNews = () => {
-  const [activeTab, setActiveTab] = useState("korean");
-  const navigate = useNavigate();
+  const [articles, setArticles] = useState([]);
   const location = useLocation();
 
   const extractNameFromPath = useCallback(() => {
@@ -15,59 +14,43 @@ const RelatedNews = () => {
   }, [location.pathname]);
 
   useEffect(() => {
-    const name = extractNameFromPath();
-    if (location.pathname.startsWith(`/news/${name}/related-news/korean`)) {
-      setActiveTab("korean");
-    } else if (
-      location.pathname.startsWith(`/news/${name}/related-news/english`)
-    ) {
-      setActiveTab("english");
-    }
-  }, [extractNameFromPath, location.pathname]);
+    const fetchRelatedNews = async () => {
+      const name = extractNameFromPath();
+      if (!name) return;
 
-  const handleTabClick = (tab) => {
-    const name = extractNameFromPath();
-    if (tab === "korean") {
-      navigate(`/news/${name}/related-news/korean${location.search}`);
-    } else if (tab === "english") {
-      navigate(`/news/${name}/related-news/english${location.search}`);
-    }
-    setActiveTab(tab);
-  };
+      try {
+        const response = await fetch(`/api/news/${name}/related-news`);
+        const data = await response.json();
+
+        setArticles(data.articles);
+      } catch (error) {
+        console.error("Failed to fetch related news:", error);
+      }
+    };
+
+    fetchRelatedNews();
+  }, [extractNameFromPath]);
 
   return (
     <Container>
       <LeftBar />
       <Article />
       <RightBar>
-        <Tabs>
-          <Tab
-            isActive={activeTab === "korean"}
-            onClick={() => handleTabClick("korean")}
-          >
-            한글 관련기사
-          </Tab>
-          <Tab
-            isActive={activeTab === "english"}
-            onClick={() => handleTabClick("english")}
-          >
-            영어 관련기사
-          </Tab>
-        </Tabs>
+        <Header>
+          <Title>관련 기사</Title>
+        </Header>
         <Content>
-          {activeTab === "korean" && (
+          {articles.length > 0 ? (
             <ArticleList>
-              <li>한국 기사 1</li>
-              <li>한국 기사 2</li>
-              <li>한국 기사 3</li>
+              {articles.map((article, index) => (
+                <li key={index}>
+                  <h3>{article.title}</h3>
+                  <p>{article.summary}</p>
+                </li>
+              ))}
             </ArticleList>
-          )}
-          {activeTab === "english" && (
-            <ArticleList>
-              <li>English Article 1</li>
-              <li>English Article 2</li>
-              <li>English Article 3</li>
-            </ArticleList>
+          ) : (
+            <p>관련 기사를 불러오는 중입니다...</p>
           )}
         </Content>
       </RightBar>
@@ -91,23 +74,16 @@ const RightBar = styled.div`
   flex-direction: column;
 `;
 
-const Tabs = styled.div`
+const Header = styled.div`
   display: flex;
-  border-bottom: 1px solid ${(props) => props.theme.colors.gray};
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 10px;
 `;
 
-const Tab = styled.div`
-  flex: 1;
-  text-align: center;
-  padding: 10px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: ${(props) => (props.isActive ? "bold" : "normal")};
-  color: ${(props) =>
-    props.isActive ? props.theme.colors.navy : props.theme.colors.gray};
-  border-bottom: ${(props) =>
-    props.isActive ? `2px solid ${props.theme.colors.navy}` : "none"};
+const Title = styled.h2`
+  font-size: 18px;
+  font-weight: bold;
 `;
 
 const Content = styled.div`
@@ -126,6 +102,18 @@ const ArticleList = styled.ul`
     padding: 10px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: ${(props) => props.theme.colors.lightGray};
+
+    h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    p {
+      margin: 5px 0 0;
+      font-size: 14px;
+    }
   }
 `;
 
