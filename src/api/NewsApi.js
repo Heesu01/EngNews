@@ -119,3 +119,14 @@ export const postTranslation = async (body) => {
     throw error.response?.data || error.message;
   }
 };
+
+export const fetchRelatedArticles = async (url) => {
+  try {
+    const response = await Axios.get(`/news/naver/related-articles`, {
+      params: { url, limit: 5 },
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};
