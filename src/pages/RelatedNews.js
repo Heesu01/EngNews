@@ -1,64 +1,85 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import React, { useEffect, useState, useCallback } from "react";
+import { useLocation } from "react-router-dom";
 import styled from "styled-components";
 import LeftBar from "../components/LeftBar";
 import Article from "../components/Article";
+import { fetchRelatedArticles } from "../api/NewsApi";
+
+const truncateText = (text, maxLength) => {
+  if (text.length > maxLength) {
+    return `${text.slice(0, maxLength)}...`;
+  }
+  return text;
+};
 
 const RelatedNews = () => {
-  const [activeTab, setActiveTab] = useState("korean");
-  const navigate = useNavigate();
+  const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const location = useLocation();
 
-  useEffect(() => {
-    if (location.pathname === "/news/related-news/:korea") {
-      setActiveTab("korean");
-    } else if (location.pathname === "/news/related-news/:english") {
-      setActiveTab("english");
-    }
+  const extractNameFromPath = useCallback(() => {
+    const match = location.pathname.match(/\/news\/([^/]+)/);
+    return match ? match[1] : null;
   }, [location.pathname]);
 
-  const handleTabClick = (tab) => {
-    setActiveTab(tab);
-    if (tab === "korean") {
-      navigate("/news/related-news/korean");
-    } else if (tab === "english") {
-      navigate("/news/related-news/english");
-    }
-  };
+  useEffect(() => {
+    const fetchArticles = async () => {
+      const url = new URLSearchParams(location.search).get("url");
+      if (!url) {
+        setError("URL이 제공되지 않았습니다.");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const response = await fetchRelatedArticles(url);
+        setArticles(response.data.slice(0, 5));
+      } catch (error) {
+        setError(
+          error.message || "관련 기사를 가져오는 중 문제가 발생했습니다."
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchArticles();
+  }, [location]);
+
+  const MAX_TITLE_LENGTH = 50;
 
   return (
     <Container>
       <LeftBar />
       <Article />
       <RightBar>
-        <Tabs>
-          <Tab
-            isActive={activeTab === "korean"}
-            onClick={() => handleTabClick("korean")}
-          >
-            한글 관련기사
-          </Tab>
-          <Tab
-            isActive={activeTab === "english"}
-            onClick={() => handleTabClick("english")}
-          >
-            영어 관련기사
-          </Tab>
-        </Tabs>
+        <Header>
+          <Title>관련 기사</Title>
+        </Header>
         <Content>
-          {activeTab === "korean" && (
+          {loading ? (
+            <p>관련 기사를 불러오는 중입니다...</p>
+          ) : error ? (
+            <p style={{ color: "red" }}>{error}</p>
+          ) : articles.length > 0 ? (
             <ArticleList>
-              <li>한국 기사 1</li>
-              <li>한국 기사 2</li>
-              <li>한국 기사 3</li>
+              {articles.map((article, index) => {
+                const name = extractNameFromPath();
+                const articleUrl = encodeURIComponent(article.link);
+                const articlePath = `/news/${name}?url=${articleUrl}`;
+                return (
+                  <li key={index}>
+                    <img src={article.imageUrl} alt="기사 이미지" />
+                    <p>{truncateText(article.title, MAX_TITLE_LENGTH)}</p>
+                    <a href={articlePath}>상세 보기</a>
+                  </li>
+                );
+              })}
             </ArticleList>
-          )}
-          {activeTab === "english" && (
-            <ArticleList>
-              <li>English Article 1</li>
-              <li>English Article 2</li>
-              <li>English Article 3</li>
-            </ArticleList>
+          ) : (
+            <p>관련 기사가 없습니다.</p>
           )}
         </Content>
       </RightBar>
@@ -82,23 +103,16 @@ const RightBar = styled.div`
   flex-direction: column;
 `;
 
-const Tabs = styled.div`
+const Header = styled.div`
   display: flex;
-  border-bottom: 1px solid ${(props) => props.theme.colors.gray};
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 10px;
 `;
 
-const Tab = styled.div`
-  flex: 1;
-  text-align: center;
-  padding: 10px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: ${(props) => (props.isActive ? "bold" : "normal")};
-  color: ${(props) =>
-    props.isActive ? props.theme.colors.navy : props.theme.colors.gray};
-  border-bottom: ${(props) =>
-    props.isActive ? `2px solid ${props.theme.colors.navy}` : "none"};
+const Title = styled.h2`
+  font-size: 18px;
+  font-weight: bold;
 `;
 
 const Content = styled.div`
@@ -113,10 +127,37 @@ const ArticleList = styled.ul`
   gap: 10px;
 
   li {
-    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
     padding: 10px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: ${(props) => props.theme.colors.lightGray};
+
+    img {
+      width: 100%;
+      height: auto;
+      border-radius: 5px;
+    }
+
+    p {
+      margin: 5px 0;
+      font-size: 14px;
+      color: ${(props) => props.theme.colors.black};
+    }
+
+    a {
+      margin-top: 5px;
+      font-size: 14px;
+      color: ${(props) => props.theme.colors.blue};
+      text-decoration: none;
+      margin-left: auto;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
   }
 `;
 

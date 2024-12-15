@@ -101,3 +101,32 @@ export const deleteLikedArticle = async (articleId) => {
     throw error.response?.data || error.message;
   }
 };
+
+export const postSummarize = async (body) => {
+  try {
+    const response = await Axios.post("/summarize", body);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};
+
+export const postTranslation = async (body) => {
+  try {
+    const response = await Axios.post("/translate", body);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};
+
+export const fetchRelatedArticles = async (url) => {
+  try {
+    const response = await Axios.get(`/news/naver/related-articles`, {
+      params: { url, limit: 5 },
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};
