@@ -3,32 +3,84 @@ import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import LeftBar from "../components/LeftBar";
 import Article from "../components/Article";
-import { postSummarize } from "../api/NewsApi";
+import { fetchArticleDetail, postSummarize } from "../api/NewsApi";
 
 const Summary = () => {
   const [activeTab, setActiveTab] = useState("translate");
   const [summary, setSummary] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [summaryLoading, setSummaryLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [articleData, setArticleData] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
 
   const extractNameFromPath = useCallback(() => {
-    const match = location.pathname.match(/\/news\/([^/]+)/);
+    const match = location.pathname.match(/\/news\/(naver|nyt)/);
     return match ? match[1] : null;
   }, [location.pathname]);
 
   useEffect(() => {
-    const name = extractNameFromPath();
-    if (location.pathname.startsWith(`/news/${name}/translate`)) {
-      setActiveTab("translate");
-    } else if (location.pathname.startsWith(`/news/${name}/summary`)) {
+    if (location.pathname.includes("/summary")) {
       setActiveTab("summary");
+    } else if (location.pathname.includes("/translate")) {
+      setActiveTab("translate");
     }
-  }, [extractNameFromPath, location.pathname]);
+  }, [location.pathname]);
+
+  const fetchArticle = useCallback(async () => {
+    try {
+      const params = new URLSearchParams(location.search);
+      const url = params.get("url");
+      const newsType = extractNameFromPath();
+
+      if (!url || !newsType)
+        throw new Error("URL 또는 뉴스 유형을 가져오지 못했습니다.");
+
+      const response = await fetchArticleDetail(newsType, url);
+      setArticleData(response.data);
+    } catch (err) {
+      setError(err.message || "기사 내용을 가져오지 못했습니다.");
+    }
+  }, [location, extractNameFromPath]);
+
+  const fetchSummary = useCallback(async () => {
+    if (!articleData?.content) return;
+
+    try {
+      setSummaryLoading(true);
+      setError(null);
+
+      const response = await postSummarize({
+        news_content: articleData.content,
+      });
+      setSummary(response.gpt_answer);
+    } catch (err) {
+      setError(err.message || "요약 요청 중 문제가 발생했습니다.");
+    } finally {
+      setSummaryLoading(false);
+    }
+  }, [articleData]);
+
+  useEffect(() => {
+    fetchArticle();
+  }, [fetchArticle]);
+
+  useEffect(() => {
+    if (activeTab === "summary" && articleData) {
+      fetchSummary();
+    }
+  }, [activeTab, fetchSummary, articleData]);
 
   const handleTabClick = (tab) => {
+    const params = new URLSearchParams(location.search);
+    const url = params.get("url");
     const name = extractNameFromPath();
+
+    if (!url || !name) {
+      setError("URL 또는 뉴스 유형을 가져오지 못했습니다.");
+      return;
+    }
+
     if (tab === "translate") {
       navigate(`/news/${name}/translate${location.search}`);
     } else if (tab === "summary") {
@@ -36,27 +88,6 @@ const Summary = () => {
     }
     setActiveTab(tab);
   };
-
-  const fetchSummary = async (content) => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const response = await postSummarize({ news_content: content });
-      setSummary(response.data.gpt_answer);
-    } catch (err) {
-      setError(err.message || "요약 요청 중 문제가 발생했습니다.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (activeTab === "summary") {
-      const articleContent = "여기서 기사 내용을 가져오세요";
-      fetchSummary(articleContent);
-    }
-  }, [activeTab]);
 
   return (
     <Container>
@@ -81,7 +112,7 @@ const Summary = () => {
           {activeTab === "translate" && <p>번역된 내용을 여기에 표시합니다.</p>}
           {activeTab === "summary" && (
             <>
-              {loading && <p>요약 요청 중...</p>}
+              {summaryLoading && <p>요약 요청 중...</p>}
               {error && <p style={{ color: "red" }}>{error}</p>}
               {summary && <p>{summary}</p>}
             </>
