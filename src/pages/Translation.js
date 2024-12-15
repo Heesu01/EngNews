@@ -15,9 +15,47 @@ const Translation = () => {
   const location = useLocation();
 
   const extractNameFromPath = useCallback(() => {
-    const match = location.pathname.match(/\/news\/([^/]+)/);
+    const match = location.pathname.match(/\/news\/(naver|nyt)/);
     return match ? match[1] : null;
   }, [location.pathname]);
+
+  const fetchArticle = useCallback(async () => {
+    try {
+      const params = new URLSearchParams(location.search);
+      const url = params.get("url");
+      const newsType = extractNameFromPath();
+
+      if (!url || !newsType)
+        throw new Error("URL 또는 뉴스 유형을 가져오지 못했습니다.");
+
+      const response = await fetchArticleDetail(newsType, url);
+      setArticleData(response.data);
+    } catch (err) {
+      setError(err.message || "기사 내용을 가져오지 못했습니다.");
+    }
+  }, [location, extractNameFromPath]);
+
+  const fetchTranslation = useCallback(async () => {
+    if (!articleData?.content) return;
+
+    try {
+      setTranslationLoading(true);
+      setError(null);
+
+      const response = await postTranslation({
+        news_content: articleData.content,
+      });
+      setTranslation(response.gpt_answer);
+    } catch (err) {
+      setError(err.message || "번역 요청 중 문제가 발생했습니다.");
+    } finally {
+      setTranslationLoading(false);
+    }
+  }, [articleData]);
+
+  useEffect(() => {
+    fetchArticle();
+  }, [fetchArticle]);
 
   useEffect(() => {
     if (activeTab === "translate" && articleData) {
@@ -26,11 +64,19 @@ const Translation = () => {
   }, [activeTab, fetchTranslation, articleData]);
 
   const handleTabClick = (tab) => {
+    const params = new URLSearchParams(location.search);
+    const url = params.get("url");
     const name = extractNameFromPath();
+
+    if (!url || !name) {
+      setError("URL 또는 뉴스 유형을 가져오지 못했습니다.");
+      return;
+    }
+
     if (tab === "translate") {
-      navigate(`/news/naver/translate?url=${url}`);
+      navigate(`/news/${name}/translate${location.search}`);
     } else if (tab === "summary") {
-      navigate(`/news/naver/summary?url=${url}`);
+      navigate(`/news/${name}/summary${location.search}`);
     }
     setActiveTab(tab);
   };
