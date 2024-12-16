@@ -11,7 +11,7 @@ import {
   deleteKeyword,
   fetchNaverCategories,
   fetchNytCategories,
-  fetchKeywords,
+  fetchCategoryKeywords,
 } from "../api/CategoryApi";
 import { useNavigate } from "react-router-dom";
 
@@ -33,6 +33,7 @@ const MyPage = () => {
   const [newKeyword, setNewKeyword] = useState("");
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [keywords, setKeywords] = useState([]);
+  const [categoryKeywords, setCategoryKeywords] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -41,9 +42,16 @@ const MyPage = () => {
         setLoadingArticles(true);
 
         const userResponse = await userApi.getUserDetails();
+        const { categories, keywords } = userResponse.data;
+
         setUserData(
           userResponse.data || { name: "", categories: [], keywords: [] }
         );
+        setAvailableCategories(categories || []);
+        setKeywords(keywords || []);
+
+        const categoryKeywordsResponse = await fetchCategoryKeywords();
+        setCategoryKeywords(categoryKeywordsResponse || []);
 
         const wordsResponse = await userApi.getLikedWords();
         setLikedWords(wordsResponse.data.wordLikeList || []);
@@ -65,39 +73,13 @@ const MyPage = () => {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    if (isEditMode) {
-      const fetchAvailableData = async () => {
-        try {
-          const [naverResponse, nytResponse] = await Promise.all([
-            fetchNaverCategories(),
-            fetchNytCategories(),
-          ]);
-
-          const combinedCategories = [
-            ...naverResponse.data.categories,
-            ...nytResponse.data.categories,
-          ];
-          const uniqueCategories = Array.from(
-            new Map(combinedCategories.map((item) => [item.id, item])).values()
-          );
-
-          setAvailableCategories(uniqueCategories);
-        } catch (error) {
-          console.error("Error fetching available categories:", error);
-          setAvailableCategories([]);
-        }
-      };
-
-      fetchAvailableData();
-    }
-  }, [isEditMode]);
-
   const handleCategorySelect = async (categoryId) => {
     setSelectedCategoryId(categoryId);
     try {
-      const response = await fetchKeywords(categoryId);
-      setKeywords(response.keywords || []);
+      const selectedCategory = userData.categories.find(
+        (category) => category.id === categoryId
+      );
+      setKeywords(selectedCategory?.keywords || []);
     } catch (error) {
       console.error("Error fetching keywords:", error);
       setKeywords([]);
@@ -139,6 +121,34 @@ const MyPage = () => {
     }
   };
 
+  useEffect(() => {
+    if (isEditMode) {
+      const fetchAvailableData = async () => {
+        try {
+          const [naverResponse, nytResponse] = await Promise.all([
+            fetchNaverCategories(),
+            fetchNytCategories(),
+          ]);
+
+          const combinedCategories = [
+            ...naverResponse.data.categories,
+            ...nytResponse.data.categories,
+          ];
+          const uniqueCategories = Array.from(
+            new Map(combinedCategories.map((item) => [item.id, item])).values()
+          );
+
+          setAvailableCategories(uniqueCategories);
+        } catch (error) {
+          console.error("Error fetching available categories:", error);
+          setAvailableCategories([]);
+        }
+      };
+
+      fetchAvailableData();
+    }
+  }, [isEditMode]);
+
   const handleDeleteCategory = async (categoryId) => {
     try {
       await deleteCategory(categoryId);
@@ -154,14 +164,22 @@ const MyPage = () => {
   };
 
   const handleAddKeyword = async () => {
-    if (!newKeyword || !selectedCategoryId) return;
+    if (!selectedCategoryId || !newKeyword) {
+      alert("카테고리와 키워드를 선택하세요!");
+      return;
+    }
+
     try {
-      const response = await createKeyword({
+      const keywordData = {
         categoryId: selectedCategoryId,
-        keyword: newKeyword,
-      });
+        keywordId: newKeyword,
+      };
+
+      const response = await createKeyword(keywordData);
+
       setKeywords((prev) => [...prev, response]);
       setNewKeyword("");
+      alert("키워드가 성공적으로 추가되었습니다!");
     } catch (error) {
       console.error("Error adding keyword:", error);
     }
@@ -255,12 +273,15 @@ const MyPage = () => {
             {isEditMode && (
               <>
                 <Select
-                  value={newCategoryId}
-                  onChange={(e) => setNewCategoryId(e.target.value)}
+                  value={selectedCategoryId}
+                  onChange={(e) => setSelectedCategoryId(e.target.value)}
                 >
-                  <option value="">카테고리 선택</option>
-                  {availableCategories.map((category) => (
-                    <option key={category.id} value={category.id}>
+                  <option value="">카테고리를 선택하세요</option>
+                  {categoryKeywords.map((category) => (
+                    <option
+                      key={category.categoryId}
+                      value={category.categoryId}
+                    >
                       {category.category}
                     </option>
                   ))}
@@ -286,15 +307,30 @@ const MyPage = () => {
           </Buttons>
           {isEditMode && (
             <>
-              <Input
+              <Select
                 value={newKeyword}
                 onChange={(e) => setNewKeyword(e.target.value)}
-                placeholder="키워드 추가"
-              />
+                disabled={!selectedCategoryId}
+              >
+                <option value="">키워드를 선택하세요</option>
+                {categoryKeywords
+                  .find(
+                    (category) => category.categoryId === selectedCategoryId
+                  )
+                  ?.keywordOptions.map((keyword) => (
+                    <option
+                      key={keyword.keywordOptionId}
+                      value={keyword.keywordOptionId}
+                    >
+                      {keyword.keywordName}
+                    </option>
+                  ))}
+              </Select>
               <ActionButton onClick={handleAddKeyword}>추가</ActionButton>
             </>
           )}
         </Keywords>
+
         <Actions>
           <ActionButton secondary onClick={handleOpenPasswordModal}>
             회원탈퇴
@@ -459,10 +495,6 @@ const UserName = styled.div`
 const Category = styled.div``;
 
 const Keywords = styled.div``;
-
-// const RecentArticles = styled.div`
-//   margin: 20px 0;
-// `;
 
 const Actions = styled.div`
   display: flex;
