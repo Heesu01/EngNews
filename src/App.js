@@ -46,7 +46,7 @@ function App() {
         <Route path="/news/:name/related-news" element={<RelatedNews />} />
         <Route path="/news/:name/trytranslate" element={<TryT />} />
         <Route path="/news/:name/trysummary" element={<TryS />} />
-        <Route path="/news/:name/analyze" element={<Analyze />} />
+        <Route path="/news/nyt/analyze" element={<Analyze />} />
       </Routes>
       <ScrollToTop />
     </Layout>

@@ -5,6 +5,8 @@ import { BsTranslate } from "react-icons/bs";
 import { LuText } from "react-icons/lu";
 import { IoChatbubbleSharp, IoChatbubbleOutline } from "react-icons/io5";
 import { FaNewspaper, FaRegNewspaper } from "react-icons/fa6";
+import { VscSymbolKeyword } from "react-icons/vsc";
+
 const LeftBar = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -22,6 +24,10 @@ const LeftBar = () => {
   const isActive = (path) => {
     return location.pathname.includes(path);
   };
+
+  const currentPath = location.pathname;
+  const nameMatch = currentPath.match(/\/news\/([^/]+)/);
+  const name = nameMatch ? nameMatch[1] : "default";
 
   return (
     <Container>
@@ -55,6 +61,15 @@ const LeftBar = () => {
           <IoChatbubbleOutline />
           <span>요약해보기</span>
         </Button>
+        {name === "nyt" && (
+          <Button
+            isActive={isActive("/analyze")}
+            onClick={() => handleNavigation("/analyze")}
+          >
+            <VscSymbolKeyword />
+            <span>구문 분석</span>
+          </Button>
+        )}
       </Section>
       <SectionTitle>관련기사 탐색</SectionTitle>
       <Section>
