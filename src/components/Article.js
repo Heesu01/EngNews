@@ -2,8 +2,12 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useLocation } from "react-router-dom";
 import { AiFillSound } from "react-icons/ai";
-import { FaRegHeart } from "react-icons/fa";
-import { fetchArticleDetail, likeArticle } from "../api/NewsApi";
+import { FaRegHeart, FaHeart } from "react-icons/fa";
+import {
+  fetchArticleDetail,
+  likeArticle,
+  deleteLikedArticle,
+} from "../api/NewsApi";
 
 const Article = () => {
   const location = useLocation();
@@ -35,29 +39,34 @@ const Article = () => {
     fetchArticle();
   }, [location]);
 
-  const handleLikeArticle = async () => {
+  const handleLikeToggle = async () => {
     try {
       const params = new URLSearchParams(location.search);
       const originalUrl = params.get("url");
-      const newsType = location.pathname.includes("nyt") ? "nyt" : "naver";
 
       if (!originalUrl) {
         alert("URL을 가져오지 못했습니다.");
         return;
       }
 
-      await likeArticle({ originalUrl, news: newsType });
-
-      setLiked(true);
-      alert("기사 찜하기 성공!");
+      if (liked) {
+        // 찜 삭제
+        await deleteLikedArticle(originalUrl);
+        setLiked(false);
+      } else {
+        // 찜 추가
+        const newsType = location.pathname.includes("nyt") ? "nyt" : "naver";
+        await likeArticle({ originalUrl, news: newsType });
+        setLiked(true);
+      }
     } catch (err) {
-      console.error("Error liking article:", err);
-      alert("찜하기 실패. 다시 시도해주세요.");
+      console.error("Error toggling like:", err);
+      alert("찜하기 상태 변경 실패. 다시 시도해주세요.");
     }
   };
 
   if (loading) {
-    return <Loading>Loading article...</Loading>;
+    return <Loading>기사를 불러오는 중입니다...</Loading>;
   }
 
   if (error) {
@@ -76,9 +85,9 @@ const Article = () => {
             <Btn>
               <AiFillSound />
             </Btn>
-            <Btn onClick={handleLikeArticle} disabled={liked}>
-              <FaRegHeart />
-              <p>{liked ? "찜 완료" : "기사 찜하기"}</p>
+            <Btn onClick={handleLikeToggle}>
+              {liked ? <FaHeart color="red" /> : <FaRegHeart />}
+              <p>{liked ? "찜 삭제하기" : "기사 찜하기"}</p>
             </Btn>
           </BtnBox>
         </TitleBox>
@@ -136,9 +145,10 @@ const Btn = styled.button`
   width: auto;
   padding: 6px;
   border-radius: 5px;
-  background-color: ${(props) => props.theme.colors.lightBlue};
-  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
-  opacity: ${(props) => (props.disabled ? 0.6 : 1)};
+  background-color: ${(props) =>
+    props.liked ? props.theme.colors.red : props.theme.colors.lightBlue};
+  cursor: pointer;
+  opacity: 1;
   p {
     margin-left: 5px;
   }
@@ -165,6 +175,7 @@ const Img = styled.img`
 const Content = styled.div``;
 
 const Loading = styled.div`
+  width: 100%;
   text-align: center;
   font-size: 16px;
   color: ${(props) => props.theme.colors.gray};
