@@ -7,7 +7,7 @@ import SignUpModal from "../components/SignupModal";
 import styled from "styled-components";
 import { signUp } from "../api/AuthApi";
 
-const SignUp = () => {
+const SignUp = ({ setIsLoggedIn }) => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const {
@@ -25,6 +25,14 @@ const SignUp = () => {
         name: data.nickname,
       });
       console.log("회원가입 성공:", response);
+
+      setIsLoggedIn(true);
+      localStorage.setItem("isLoggedIn", "true");
+
+      if (response.token) {
+        localStorage.setItem("authToken", response.token);
+      }
+
       setIsModalOpen(true);
     } catch (error) {
       console.error("회원가입 실패:", error);
