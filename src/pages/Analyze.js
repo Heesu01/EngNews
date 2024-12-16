@@ -1,18 +1,24 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import LeftBar from "../components/LeftBar";
 import Article from "../components/Article";
 
 const Analyze = () => {
+  const [analysisResult, setAnalysisResult] = useState(null);
+
   return (
     <Container>
       <LeftBar />
-      <Article />
+      <Article onAnalyze={setAnalysisResult} />
       <RightBar>
         <Content>
           <Title>구문 분석 결과</Title>
           <AnalysisResult>
-            <p>여기에 구문 분석 결과를 표시합니다.</p>
+            {analysisResult ? (
+              <p>{analysisResult}</p>
+            ) : (
+              <p>구문을 드래그하면 결과가 여기에 표시됩니다.</p>
+            )}
           </AnalysisResult>
         </Content>
       </RightBar>

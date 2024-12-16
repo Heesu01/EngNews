@@ -9,7 +9,7 @@ import {
   deleteLikedArticle,
 } from "../api/NewsApi";
 
-const Article = () => {
+const Article = ({ onAnalyze }) => {
   const location = useLocation();
   const [articleData, setArticleData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -50,11 +50,9 @@ const Article = () => {
       }
 
       if (liked) {
-        // 찜 삭제
         await deleteLikedArticle(originalUrl);
         setLiked(false);
       } else {
-        // 찜 추가
         const newsType = location.pathname.includes("nyt") ? "nyt" : "naver";
         await likeArticle({ originalUrl, news: newsType });
         setLiked(true);
@@ -62,6 +60,37 @@ const Article = () => {
     } catch (err) {
       console.error("Error toggling like:", err);
       alert("찜하기 상태 변경 실패. 다시 시도해주세요.");
+    }
+  };
+
+  const handleMouseUp = async () => {
+    if (!location.pathname.includes("news/nyt/analyze")) return;
+
+    const selection = window.getSelection();
+    const selectedText = selection ? selection.toString().trim() : "";
+
+    if (selectedText) {
+      try {
+        const response = await fetch("/analyze-sentence", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ news_sentence: selectedText }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          onAnalyze(result.data.gpt_answer);
+        } else {
+          console.error("Error analyzing sentence:", result.message);
+          onAnalyze("분석에 실패했습니다. 다시 시도해주세요.");
+        }
+      } catch (err) {
+        console.error("Error:", err);
+        onAnalyze("서버와의 통신에 실패했습니다.");
+      }
     }
   };
 
@@ -74,7 +103,7 @@ const Article = () => {
   }
 
   return (
-    <Container>
+    <Container onMouseUp={handleMouseUp}>
       <Top>
         <Date>{articleData.time || "시간 정보 없음"}</Date>
         <TitleBox>
