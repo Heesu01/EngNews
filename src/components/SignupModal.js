@@ -3,23 +3,25 @@ import styled from "styled-components";
 import Button from "./Button";
 import Category from "./Category";
 import { BiSolidCategory } from "react-icons/bi";
-import { BsBookmarkPlusFill, BsChevronDown } from "react-icons/bs";
+import { BsChevronDown } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import {
   fetchNaverCategories,
   fetchNytCategories,
-  fetchKeywords,
+  createCategory,
+  fetchCategoryKeywords,
+  createKeyword,
 } from "../api/CategoryApi";
 
 const SignUpModal = () => {
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
-  const [activeCategory, setActiveCategory] = useState(null);
-  const [keywords, setKeywords] = useState([]);
-  const [availableKeywords, setAvailableKeywords] = useState([]);
   const [showCategoryList, setShowCategoryList] = useState(false);
-  const [showKeywordList, setShowKeywordList] = useState(false);
+  const [keywordOptions, setKeywordOptions] = useState([]);
+  const [selectedKeywords, setSelectedKeywords] = useState([]);
+  const [isKeywordStep, setIsKeywordStep] = useState(false);
+  const [showKeywordList, setShowKeywordList] = useState({});
 
   useEffect(() => {
     const loadCategories = async () => {
@@ -49,129 +51,207 @@ const SignUpModal = () => {
     loadCategories();
   }, []);
 
-  const loadKeywords = async (category) => {
-    try {
-      setActiveCategory(category);
-      const response = await fetchKeywords(category.id);
-      const keywordList = response.data.keywords.map((item) => ({
-        id: item.keywordId,
-        name: item.keywordName,
-        categoryId: item.categoryId,
-      }));
-      setAvailableKeywords(keywordList);
-    } catch (error) {
-      console.error("키워드 조회 실패:", error);
-    }
-  };
-
   const handleCategorySelect = (category) => {
     setSelectedCategories((prev) =>
       prev.some((item) => item.id === category.id) ? prev : [...prev, category]
     );
-    loadKeywords(category);
-    setShowCategoryList(false);
   };
 
   const removeCategory = (category) => {
     setSelectedCategories((prev) =>
       prev.filter((item) => item.id !== category.id)
     );
-    if (activeCategory && activeCategory.id === category.id) {
-      setActiveCategory(null);
-      setAvailableKeywords([]);
+  };
+
+  const fetchKeywordOptions = async () => {
+    try {
+      await Promise.all(
+        selectedCategories.map((category) =>
+          createCategory({
+            categoryId: category.id,
+            category: category.category,
+          })
+        )
+      );
+      const data = await fetchCategoryKeywords();
+      setKeywordOptions(data);
+      setIsKeywordStep(true);
+    } catch (error) {
+      console.error("카테고리 POST 또는 키워드 조회 실패:", error);
     }
   };
 
-  const addKeyword = (keyword) => {
-    if (!keywords.some((k) => k.id === keyword.id)) {
-      setKeywords([...keywords, keyword]);
+  const toggleKeywordList = (categoryId) => {
+    setShowKeywordList((prev) => ({
+      ...prev,
+      [categoryId]: !prev[categoryId],
+    }));
+  };
+
+  const handleKeywordSelect = (categoryId, keyword) => {
+    setSelectedKeywords((prev) => {
+      const existingCategory = prev.find(
+        (item) => item.categoryId === categoryId
+      );
+      if (existingCategory) {
+        return prev.map((item) =>
+          item.categoryId === categoryId
+            ? {
+                ...item,
+                keywords: item.keywords.some(
+                  (k) => k.keywordOptionId === keyword.keywordOptionId
+                )
+                  ? item.keywords
+                  : [...item.keywords, keyword],
+              }
+            : item
+        );
+      } else {
+        return [...prev, { categoryId, keywords: [keyword] }];
+      }
+    });
+  };
+
+  const removeKeyword = (categoryId, keyword) => {
+    setSelectedKeywords((prev) => {
+      const existingCategory = prev.find(
+        (item) => item.categoryId === categoryId
+      );
+      if (!existingCategory) return prev;
+
+      const updatedKeywords = existingCategory.keywords.filter(
+        (k) => k.keywordOptionId !== keyword.keywordOptionId
+      );
+
+      if (updatedKeywords.length > 0) {
+        return prev.map((item) =>
+          item.categoryId === categoryId
+            ? { ...item, keywords: updatedKeywords }
+            : item
+        );
+      } else {
+        return prev.filter((item) => item.categoryId !== categoryId);
+      }
+    });
+  };
+
+  const handleComplete = async () => {
+    try {
+      await Promise.all(
+        selectedKeywords.flatMap((category) =>
+          category.keywords.map((keyword) =>
+            createKeyword({
+              categoryId: category.categoryId,
+              keywordId: keyword.keywordOptionId,
+            })
+          )
+        )
+      );
+      console.log("Keywords successfully posted:", selectedKeywords);
+      navigate("/");
+    } catch (error) {
+      console.error("키워드 POST 실패:", error);
     }
-    setShowKeywordList(false);
-  };
-
-  const removeKeyword = (keyword) => {
-    setKeywords(keywords.filter((item) => item.id !== keyword.id));
-  };
-
-  const handleComplete = () => {
-    console.log("Selected Categories:", selectedCategories);
-    console.log("Selected Keywords:", keywords);
-    navigate("/");
   };
 
   return (
     <ModalBackground>
       <ModalContainer>
-        <CategoryContainer>
-          <CategoryTitle>
-            <BiSolidCategory />
-            <p>관심 카테고리 선택</p>
-          </CategoryTitle>
-          <Dropdown onClick={() => setShowCategoryList((prev) => !prev)}>
-            <span>카테고리를 선택해주세요</span>
-            <BsChevronDown />
-          </Dropdown>
-          {showCategoryList && (
-            <DropdownList>
-              {categories.map((category) => (
-                <DropdownItem
-                  key={category.id}
-                  onClick={() => handleCategorySelect(category)}
-                >
-                  {category.category} ({category.source})
-                </DropdownItem>
+        {!isKeywordStep ? (
+          <>
+            <CategoryContainer>
+              <CategoryTitle>
+                <BiSolidCategory />
+                <p>관심 카테고리 선택</p>
+              </CategoryTitle>
+              <Dropdown onClick={() => setShowCategoryList((prev) => !prev)}>
+                <span>카테고리를 선택해주세요</span>
+                <BsChevronDown />
+              </Dropdown>
+              {showCategoryList && (
+                <DropdownList>
+                  {categories.map((category) => (
+                    <DropdownItem
+                      key={category.id}
+                      onClick={() => handleCategorySelect(category)}
+                    >
+                      {category.category} ({category.source})
+                    </DropdownItem>
+                  ))}
+                </DropdownList>
+              )}
+              <AddedContainer>
+                {selectedCategories.map((category) => (
+                  <Category
+                    key={category.id}
+                    label={`${category.category} (${category.source})`}
+                    selected={true}
+                    onClick={() => removeCategory(category)}
+                  />
+                ))}
+              </AddedContainer>
+            </CategoryContainer>
+            <Button onClick={fetchKeywordOptions}>다음</Button>
+          </>
+        ) : (
+          <>
+            <CategoryContainer>
+              <CategoryTitle>
+                <p>키워드 선택</p>
+              </CategoryTitle>
+              {keywordOptions.map((category) => (
+                <KeywordListContainer key={category.categoryId}>
+                  <Dropdown
+                    onClick={() => toggleKeywordList(category.categoryId)}
+                  >
+                    <span>{category.category} 키워드 선택</span>
+                    <BsChevronDown />
+                  </Dropdown>
+                  {showKeywordList[category.categoryId] && (
+                    <DropdownList>
+                      {category.keywordOptions.map((keyword) => (
+                        <DropdownItem
+                          key={keyword.keywordOptionId}
+                          onClick={() =>
+                            handleKeywordSelect(category.categoryId, keyword)
+                          }
+                        >
+                          {keyword.keywordName}
+                        </DropdownItem>
+                      ))}
+                    </DropdownList>
+                  )}
+                </KeywordListContainer>
               ))}
-            </DropdownList>
-          )}
-          <AddedContainer>
-            {selectedCategories.map((category) => (
-              <Category
-                key={category.id}
-                label={`${category.category} (${category.source})`}
-                selected={true}
-                onClick={() => removeCategory(category)}
-              />
-            ))}
-          </AddedContainer>
-        </CategoryContainer>
-        <KeywordContainer>
-          <CategoryTitle>
-            <BsBookmarkPlusFill size={"16px"} />
-            <p>관심 키워드 선택</p>
-          </CategoryTitle>
-          {activeCategory && (
-            <ActiveCategory>
-              {activeCategory.category} ({activeCategory.source})
-            </ActiveCategory>
-          )}
-          <Dropdown onClick={() => setShowKeywordList((prev) => !prev)}>
-            <span>키워드를 선택해주세요</span>
-            <BsChevronDown />
-          </Dropdown>
-          {showKeywordList && (
-            <DropdownList>
-              {availableKeywords.map((keyword) => (
-                <DropdownItem
-                  key={keyword.id}
-                  onClick={() => addKeyword(keyword)}
-                >
-                  {keyword.name}
-                </DropdownItem>
-              ))}
-            </DropdownList>
-          )}
-          <AddedContainer>
-            {keywords.map((keyword) => (
-              <Category
-                key={keyword.id}
-                label={keyword.name}
-                selected={false}
-                onClick={() => removeKeyword(keyword)}
-              />
-            ))}
-          </AddedContainer>
-        </KeywordContainer>
-        <Button onClick={handleComplete}>완료</Button>
+              <AddedContainer>
+                {selectedKeywords.map((category) => (
+                  <div key={category.categoryId}>
+                    <h4>
+                      {
+                        keywordOptions.find(
+                          (c) => c.categoryId === category.categoryId
+                        )?.category
+                      }
+                    </h4>
+                    <KeywordBox>
+                      {category.keywords.map((keyword) => (
+                        <Category
+                          key={keyword.keywordOptionId}
+                          label={keyword.keywordName}
+                          selected={true}
+                          onClick={() =>
+                            removeKeyword(category.categoryId, keyword)
+                          }
+                        />
+                      ))}
+                    </KeywordBox>
+                  </div>
+                ))}
+              </AddedContainer>
+            </CategoryContainer>
+            <Button onClick={handleComplete}>완료</Button>
+          </>
+        )}
       </ModalContainer>
     </ModalBackground>
   );
@@ -214,8 +294,6 @@ const CategoryContainer = styled.div`
   position: relative;
 `;
 
-const KeywordContainer = styled.div``;
-
 const Dropdown = styled.div`
   width: 100%;
   padding: 10px;
@@ -230,17 +308,6 @@ const Dropdown = styled.div`
   }
 `;
 
-const DropdownList = styled.div`
-  background: white;
-  border: 1px solid ${(props) => props.theme.colors.gray2};
-  border-radius: 4px;
-  margin-top: 5px;
-  max-height: 150px;
-  overflow-y: auto;
-  position: relative;
-  z-index: 10;
-`;
-
 const DropdownItem = styled.div`
   padding: 10px;
   cursor: pointer;
@@ -249,20 +316,31 @@ const DropdownItem = styled.div`
   }
 `;
 
-const ActiveCategory = styled.div`
-  background-color: ${(props) => props.theme.colors.lightBlue};
-  color: ${(props) => props.theme.colors.black};
-  padding: 5px 10px;
-  border-radius: 4px;
-  margin-bottom: 10px;
-  text-align: center;
-`;
-
 const AddedContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
   margin-top: 10px;
+`;
+
+const KeywordListContainer = styled.div`
+  padding: 5px;
+  margin-bottom: 10px;
+`;
+
+const DropdownList = styled.div`
+  background: white;
+  border: 1px solid ${(props) => props.theme.colors.gray2};
+  border-radius: 4px;
+  margin-top: 5px;
+  max-height: 150px;
+  overflow-y: auto;
+  padding: 5px;
+`;
+
+const KeywordBox = styled.div`
+  display: flex;
+  gap: 5px;
 `;
 
 export default SignUpModal;

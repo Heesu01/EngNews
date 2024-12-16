@@ -33,7 +33,10 @@ function App() {
           path="/auth/login"
           element={<Login setIsLoggedIn={setIsLoggedIn} />}
         />
-        <Route path="/auth/signup" element={<SignUp />} />
+        <Route
+          path="/auth/signup"
+          element={<SignUp setIsLoggedIn={setIsLoggedIn} />}
+        />
         <Route path="/mypage" element={<MyPage />} />
         <Route path="/naver" element={<NaverNews />} />
         <Route path="/nyt" element={<NytNews />} />

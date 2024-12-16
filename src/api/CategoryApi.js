@@ -61,3 +61,12 @@ export const deleteKeyword = async (keywordId) => {
     throw error.response?.data || error.message;
   }
 };
+
+export const fetchCategoryKeywords = async () => {
+  try {
+    const response = await Axios.get("/categories/info");
+    return response.data.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};
