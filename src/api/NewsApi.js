@@ -93,9 +93,11 @@ export const likeArticle = async (articleData) => {
   }
 };
 
-export const deleteLikedArticle = async (articleId) => {
+export const deleteLikedArticle = async (url) => {
   try {
-    const response = await Axios.delete(`/articles-like/${articleId}`);
+    const response = await Axios.delete("/articles-like", {
+      params: { url },
+    });
     return response.data;
   } catch (error) {
     throw error.response?.data || error.message;

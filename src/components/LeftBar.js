@@ -5,6 +5,7 @@ import { BsTranslate } from "react-icons/bs";
 import { LuText } from "react-icons/lu";
 import { IoChatbubbleSharp, IoChatbubbleOutline } from "react-icons/io5";
 import { FaNewspaper, FaRegNewspaper } from "react-icons/fa6";
+import { VscSymbolKeyword } from "react-icons/vsc";
 
 const LeftBar = () => {
   const navigate = useNavigate();
@@ -20,51 +21,68 @@ const LeftBar = () => {
     navigate(`/news/${name}${path}${params}`);
   };
 
+  const isActive = (path) => {
+    return location.pathname.includes(path);
+  };
+
+  const currentPath = location.pathname;
+  const nameMatch = currentPath.match(/\/news\/([^/]+)/);
+  const name = nameMatch ? nameMatch[1] : "default";
+
   return (
     <Container>
       <SectionTitle>AI 기능 선택</SectionTitle>
       <Section>
         <Button
-          isActive={location.pathname === "/translate"}
+          isActive={isActive("/translate")}
           onClick={() => handleNavigation("/translate")}
         >
           <BsTranslate />
           <span>뉴스 번역</span>
         </Button>
         <Button
-          isActive={location.pathname === "/summary"}
+          isActive={isActive("/summary")}
           onClick={() => handleNavigation("/summary")}
         >
           <LuText />
           <span>뉴스 요약</span>
         </Button>
         <Button
-          isActive={location.pathname === "/trytranslate"}
+          isActive={isActive("/trytranslate")}
           onClick={() => handleNavigation("/trytranslate")}
         >
           <IoChatbubbleSharp />
           <span>번역해보기</span>
         </Button>
         <Button
-          isActive={location.pathname === "/trysummary"}
+          isActive={isActive("/trysummary")}
           onClick={() => handleNavigation("/trysummary")}
         >
           <IoChatbubbleOutline />
           <span>요약해보기</span>
         </Button>
+        {name === "nyt" && (
+          <Button
+            isActive={isActive("/analyze")}
+            onClick={() => handleNavigation("/analyze")}
+          >
+            <VscSymbolKeyword />
+            <span>구문 분석</span>
+          </Button>
+        )}
       </Section>
       <SectionTitle>관련기사 탐색</SectionTitle>
       <Section>
         <Button
-          isActive={location.pathname === "/related-news"}
+          isActive={isActive("/related-news")}
           onClick={() => handleNavigation("/related-news")}
         >
           <FaNewspaper />
           <span>관련한국기사</span>
         </Button>
         <Button
-          isActive={location.pathname === "/related-news"}
-          onClick={() => handleNavigation("/related-news")}
+          isActive={isActive("/related-news/english")}
+          onClick={() => handleNavigation("/related-news/english")}
         >
           <FaRegNewspaper />
           <span>관련외국기사</span>

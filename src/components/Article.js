@@ -2,10 +2,14 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useLocation } from "react-router-dom";
 import { AiFillSound } from "react-icons/ai";
-import { FaRegHeart } from "react-icons/fa";
-import { fetchArticleDetail, likeArticle } from "../api/NewsApi";
+import { FaRegHeart, FaHeart } from "react-icons/fa";
+import {
+  fetchArticleDetail,
+  likeArticle,
+  deleteLikedArticle,
+} from "../api/NewsApi";
 
-const Article = () => {
+const Article = ({ onAnalyze }) => {
   const location = useLocation();
   const [articleData, setArticleData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -33,31 +37,98 @@ const Article = () => {
     };
 
     fetchArticle();
+
+    return () => {
+      if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+      }
+    };
   }, [location]);
 
-  const handleLikeArticle = async () => {
+  const handleLikeToggle = async () => {
     try {
       const params = new URLSearchParams(location.search);
       const originalUrl = params.get("url");
-      const newsType = location.pathname.includes("nyt") ? "nyt" : "naver";
 
       if (!originalUrl) {
         alert("URL을 가져오지 못했습니다.");
         return;
       }
 
-      await likeArticle({ originalUrl, news: newsType });
-
-      setLiked(true);
-      alert("기사 찜하기 성공!");
+      if (liked) {
+        await deleteLikedArticle(originalUrl);
+        setLiked(false);
+      } else {
+        const newsType = location.pathname.includes("nyt") ? "nyt" : "naver";
+        await likeArticle({ originalUrl, news: newsType });
+        setLiked(true);
+      }
     } catch (err) {
-      console.error("Error liking article:", err);
-      alert("찜하기 실패. 다시 시도해주세요.");
+      console.error("Error toggling like:", err);
+      alert("찜하기 상태 변경 실패. 다시 시도해주세요.");
     }
   };
 
+  const handleMouseUp = async () => {
+    if (!location.pathname.includes("news/nyt/analyze")) return;
+
+    const selection = window.getSelection();
+    const selectedText = selection ? selection.toString().trim() : "";
+
+    if (selectedText) {
+      try {
+        const response = await fetch("/analyze-sentence", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ news_sentence: selectedText }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          onAnalyze(result.data.gpt_answer);
+        } else {
+          console.error("Error analyzing sentence:", result.message);
+          onAnalyze("분석에 실패했습니다. 다시 시도해주세요.");
+        }
+      } catch (err) {
+        console.error("Error:", err);
+        onAnalyze("서버와의 통신에 실패했습니다.");
+      }
+    }
+  };
+
+  const handlePlayVoice = () => {
+    if (!articleData) {
+      alert("기사를 불러온 후 시도해주세요.");
+      return;
+    }
+
+    if (window.speechSynthesis.speaking) {
+      window.speechSynthesis.cancel();
+    }
+
+    const speech = new SpeechSynthesisUtterance();
+    const voices = window.speechSynthesis.getVoices();
+
+    const newsType = location.pathname.includes("nyt") ? "nyt" : "naver";
+
+    speech.voice =
+      voices.find(
+        (voice) => voice.lang === (newsType === "nyt" ? "en-US" : "ko-KR")
+      ) || voices[0];
+    speech.lang = newsType === "nyt" ? "en-US" : "ko-KR";
+
+    speech.text = `${articleData.title}. ${articleData.content}`;
+    speech.rate = 1;
+
+    window.speechSynthesis.speak(speech);
+  };
+
   if (loading) {
-    return <Loading>Loading article...</Loading>;
+    return <Loading>기사를 불러오는 중입니다...</Loading>;
   }
 
   if (error) {
@@ -65,7 +136,7 @@ const Article = () => {
   }
 
   return (
-    <Container>
+    <Container onMouseUp={handleMouseUp}>
       <Top>
         <Date>{articleData.time || "시간 정보 없음"}</Date>
         <TitleBox>
@@ -73,12 +144,12 @@ const Article = () => {
             {articleData.title} <span>{articleData.journalistName}</span>
           </Title>
           <BtnBox>
-            <Btn>
+            <Btn onClick={handlePlayVoice}>
               <AiFillSound />
             </Btn>
-            <Btn onClick={handleLikeArticle} disabled={liked}>
-              <FaRegHeart />
-              <p>{liked ? "찜 완료" : "기사 찜하기"}</p>
+            <Btn onClick={handleLikeToggle}>
+              {liked ? <FaHeart color="red" /> : <FaRegHeart />}
+              <p>{liked ? "찜 삭제하기" : "기사 찜하기"}</p>
             </Btn>
           </BtnBox>
         </TitleBox>
@@ -136,9 +207,10 @@ const Btn = styled.button`
   width: auto;
   padding: 6px;
   border-radius: 5px;
-  background-color: ${(props) => props.theme.colors.lightBlue};
-  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
-  opacity: ${(props) => (props.disabled ? 0.6 : 1)};
+  background-color: ${(props) =>
+    props.liked ? props.theme.colors.red : props.theme.colors.lightBlue};
+  cursor: pointer;
+  opacity: 1;
   p {
     margin-left: 5px;
   }
@@ -165,6 +237,7 @@ const Img = styled.img`
 const Content = styled.div``;
 
 const Loading = styled.div`
+  width: 100%;
   text-align: center;
   font-size: 16px;
   color: ${(props) => props.theme.colors.gray};
