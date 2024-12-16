@@ -37,6 +37,12 @@ const Article = ({ onAnalyze }) => {
     };
 
     fetchArticle();
+
+    return () => {
+      if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+      }
+    };
   }, [location]);
 
   const handleLikeToggle = async () => {
@@ -94,6 +100,33 @@ const Article = ({ onAnalyze }) => {
     }
   };
 
+  const handlePlayVoice = () => {
+    if (!articleData) {
+      alert("기사를 불러온 후 시도해주세요.");
+      return;
+    }
+
+    if (window.speechSynthesis.speaking) {
+      window.speechSynthesis.cancel();
+    }
+
+    const speech = new SpeechSynthesisUtterance();
+    const voices = window.speechSynthesis.getVoices();
+
+    const newsType = location.pathname.includes("nyt") ? "nyt" : "naver";
+
+    speech.voice =
+      voices.find(
+        (voice) => voice.lang === (newsType === "nyt" ? "en-US" : "ko-KR")
+      ) || voices[0];
+    speech.lang = newsType === "nyt" ? "en-US" : "ko-KR";
+
+    speech.text = `${articleData.title}. ${articleData.content}`;
+    speech.rate = 1;
+
+    window.speechSynthesis.speak(speech);
+  };
+
   if (loading) {
     return <Loading>기사를 불러오는 중입니다...</Loading>;
   }
@@ -111,7 +144,7 @@ const Article = ({ onAnalyze }) => {
             {articleData.title} <span>{articleData.journalistName}</span>
           </Title>
           <BtnBox>
-            <Btn>
+            <Btn onClick={handlePlayVoice}>
               <AiFillSound />
             </Btn>
             <Btn onClick={handleLikeToggle}>
