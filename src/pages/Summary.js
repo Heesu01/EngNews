@@ -53,7 +53,7 @@ const Summary = () => {
       const response = await postSummarize({
         news_content: articleData.content,
       });
-      setSummary(response.gpt_answer);
+      setSummary(response.data.gpt_answer);
     } catch (err) {
       setError(err.message || "요약 요청 중 문제가 발생했습니다.");
     } finally {
@@ -114,7 +114,7 @@ const Summary = () => {
             <>
               {summaryLoading && <p>요약 요청 중...</p>}
               {error && <p style={{ color: "red" }}>{error}</p>}
-              {summary && <p>{summary}</p>}
+              {summary && <p style={{ whiteSpace: "pre-wrap" }}>{summary}</p>}
             </>
           )}
         </Content>
