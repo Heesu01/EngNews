@@ -170,14 +170,30 @@ const MyPage = () => {
     }
 
     try {
+      const selectedCategory = categoryKeywords.find(
+        (category) => category.categoryId === selectedCategoryId
+      );
+      const selectedKeyword = selectedCategory?.keywordOptions.find(
+        (option) => option.keywordOptionId === newKeyword
+      );
+
+      if (!selectedKeyword) {
+        alert("유효한 키워드를 선택해주세요.");
+        return;
+      }
+
       const keywordData = {
         categoryId: selectedCategoryId,
         keywordId: newKeyword,
       };
 
       const response = await createKeyword(keywordData);
+      const newKeywordObj = {
+        id: response.id || newKeyword,
+        keyword: selectedKeyword.keywordName.trim(),
+      };
 
-      setKeywords((prev) => [...prev, response]);
+      setKeywords((prev) => [...prev, newKeywordObj]);
       setNewKeyword("");
       alert("키워드가 성공적으로 추가되었습니다!");
     } catch (error) {
