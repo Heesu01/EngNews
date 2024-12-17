@@ -93,7 +93,7 @@ const LeftBar = () => {
 };
 
 const Container = styled.div`
-  width: 30%;
+  width: 27%;
   height: 100%;
   padding: 20px 10px;
   padding-right: 0;

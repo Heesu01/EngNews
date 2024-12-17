@@ -472,7 +472,7 @@ const Container = styled.div`
   display: flex;
   background-color: #f8f9fa;
   padding: 40px 20px;
-  height: 700px;
+  min-height: 700px;
 `;
 
 const Sidebar = styled.div`
@@ -486,6 +486,7 @@ const Sidebar = styled.div`
   padding: 20px;
   margin-right: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  height: auto;
 `;
 const Profile = styled.div`
   display: flex;
@@ -516,7 +517,7 @@ const Actions = styled.div`
   display: flex;
   justify-content: space-between;
   gap: 10px;
-  margin-top: auto;
+  margin-top: 10px;
 `;
 const Title = styled.div`
   font-size: 16px;
@@ -542,6 +543,7 @@ const Button = styled.button`
   cursor: pointer;
 `;
 const ActionButton = styled(Button)`
+  margin-left: 5px;
   background-color: ${({ secondary }) =>
     secondary
       ? (props) => props.theme.colors.gray2
@@ -574,8 +576,10 @@ const Articles = styled.div`
 `;
 
 const FavoriteArticles = styled.div`
-  margin-bottom: 2vw;
   width: 50%;
+  box-shadow: 0 7px 9px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  min-height: 300px;
 `;
 
 const SectionTitle = styled.div`
