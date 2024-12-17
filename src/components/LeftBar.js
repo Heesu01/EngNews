@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { BsTranslate } from "react-icons/bs";
 import { LuText } from "react-icons/lu";
 import { IoChatbubbleSharp, IoChatbubbleOutline } from "react-icons/io5";
-import { FaNewspaper, FaRegNewspaper } from "react-icons/fa6";
+import { FaNewspaper } from "react-icons/fa6";
 import { VscSymbolKeyword } from "react-icons/vsc";
 
 const LeftBar = () => {
@@ -31,7 +31,7 @@ const LeftBar = () => {
 
   return (
     <Container>
-      <SectionTitle>AI 기능 선택</SectionTitle>
+      <SectionTitle>기능 선택</SectionTitle>
       <Section>
         <Button
           isActive={isActive("/translate")}
@@ -70,16 +70,16 @@ const LeftBar = () => {
             <span>구문 분석</span>
           </Button>
         )}
-      </Section>
-      <SectionTitle>관련기사 탐색</SectionTitle>
-      <Section>
         <Button
           isActive={isActive("/related-news")}
           onClick={() => handleNavigation("/related-news")}
         >
           <FaNewspaper />
-          <span>관련한국기사</span>
+          <span>관련 기사</span>
         </Button>
+      </Section>
+      {/* <SectionTitle>관련기사 탐색</SectionTitle>
+      <Section>
         <Button
           isActive={isActive("/related-news/english")}
           onClick={() => handleNavigation("/related-news/english")}
@@ -87,7 +87,7 @@ const LeftBar = () => {
           <FaRegNewspaper />
           <span>관련외국기사</span>
         </Button>
-      </Section>
+      </Section> */}
     </Container>
   );
 };
