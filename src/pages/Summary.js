@@ -43,8 +43,16 @@ const Summary = () => {
     }
   }, [location, extractNameFromPath]);
 
+  const cleanResponse = (response) => {
+    if (!response) return "";
+    return response
+      .replace(/^"|"$/g, "")
+      .replace(/\\n/g, "\n")
+      .replace(/\\\\n/g, "\n");
+  };
+
   const fetchSummary = useCallback(async () => {
-    if (!articleData?.content) return;
+    if (!articleData?.content || summary) return;
 
     try {
       setSummaryLoading(true);
@@ -53,13 +61,15 @@ const Summary = () => {
       const response = await postSummarize({
         news_content: articleData.content,
       });
-      setSummary(response.data.gpt_answer);
+
+      const cleanedSummary = cleanResponse(response.data.gpt_answer);
+      setSummary(cleanedSummary);
     } catch (err) {
       setError(err.message || "요약 요청 중 문제가 발생했습니다.");
     } finally {
       setSummaryLoading(false);
     }
-  }, [articleData]);
+  }, [articleData, summary]);
 
   useEffect(() => {
     fetchArticle();

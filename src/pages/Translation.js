@@ -35,8 +35,18 @@ const Translation = () => {
     }
   }, [location, extractNameFromPath]);
 
+  const cleanResponse = (response) => {
+    if (!response) return "";
+    return response
+      .replace(/^"|"$/g, "")
+      .replace(/\\"/g, '"')
+      .replace(/\\\\n/g, "\n")
+      .replace(/\\n/g, "\n")
+      .trim();
+  };
+
   const fetchTranslation = useCallback(async () => {
-    if (!articleData?.content) return;
+    if (!articleData?.content || translation) return;
 
     try {
       setTranslationLoading(true);
@@ -45,13 +55,15 @@ const Translation = () => {
       const response = await postTranslation({
         news_content: articleData.content,
       });
-      setTranslation(response.data.gpt_answer);
+
+      const cleandTranslation = cleanResponse(response.data.gpt_answer);
+      setTranslation(cleandTranslation);
     } catch (err) {
       setError(err.message || "번역 요청 중 문제가 발생했습니다.");
     } finally {
       setTranslationLoading(false);
     }
-  }, [articleData]);
+  }, [articleData, translation]);
 
   useEffect(() => {
     fetchArticle();
