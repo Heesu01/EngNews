@@ -436,7 +436,7 @@ const MyPage = () => {
             )}
           </FavoriteArticles>
         </Articles>
-        <WordList>
+        {/* <WordList>
           <SectionTitle>
             <VscSymbolKeyword />
             나만의 단어장
@@ -462,7 +462,7 @@ const MyPage = () => {
               )}
             </WordGrid>
           )}
-        </WordList>
+        </WordList> */}
       </Main>
     </Container>
   );
@@ -579,7 +579,7 @@ const FavoriteArticles = styled.div`
   width: 50%;
   box-shadow: 0 7px 9px rgba(0, 0, 0, 0.1);
   border-radius: 10px;
-  min-height: 300px;
+  height: 600px;
 `;
 
 const SectionTitle = styled.div`
@@ -589,6 +589,7 @@ const SectionTitle = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
+  margin-left: 10px;
 `;
 
 const ArticleGrid = styled.div`
@@ -597,7 +598,7 @@ const ArticleGrid = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
-  height: 280px;
+  height: 600px;
   overflow-y: scroll;
   align-items: center;
 `;
@@ -632,66 +633,66 @@ const ArticleTitle = styled.div`
   font-size: 14px;
 `;
 
-const WordList = styled.div`
-  margin-top: 20px;
-  width: 100%;
-  background-color: ${(props) => props.theme.colors.white};
-  border-radius: 8px;
-  padding: 15px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  height: 240px;
-`;
+// const WordList = styled.div`
+//   margin-top: 20px;
+//   width: 100%;
+//   background-color: ${(props) => props.theme.colors.white};
+//   border-radius: 8px;
+//   padding: 15px;
+//   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+//   height: 240px;
+// `;
 
-const WordGrid = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  max-height: 180px;
-  overflow-y: auto;
+// const WordGrid = styled.div`
+//   display: flex;
+//   flex-wrap: wrap;
+//   gap: 20px;
+//   max-height: 180px;
+//   overflow-y: auto;
 
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-  &::-webkit-scrollbar-thumb {
-    background-color: ${(props) => props.theme.colors.gray2};
-    border-radius: 3px;
-  }
-  &::-webkit-scrollbar-track {
-    background-color: ${(props) => props.theme.colors.gray3};
-  }
-`;
+//   &::-webkit-scrollbar {
+//     width: 6px;
+//   }
+//   &::-webkit-scrollbar-thumb {
+//     background-color: ${(props) => props.theme.colors.gray2};
+//     border-radius: 3px;
+//   }
+//   &::-webkit-scrollbar-track {
+//     background-color: ${(props) => props.theme.colors.gray3};
+//   }
+// `;
 
-const WordCard = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: auto;
-  background-color: ${(props) => props.theme.colors.lightBlue};
-  border-radius: 8px;
-  padding: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+// const WordCard = styled.div`
+//   display: flex;
+//   align-items: center;
+//   justify-content: space-between;
+//   width: auto;
+//   background-color: ${(props) => props.theme.colors.lightBlue};
+//   border-radius: 8px;
+//   padding: 10px;
+//   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+//   transition: transform 0.2s ease, box-shadow 0.2s ease;
 
-  &:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  }
-`;
+//   &:hover {
+//     transform: scale(1.05);
+//     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+//   }
+// `;
 
-const Word = styled.div`
-  font-size: 14px;
-  font-weight: bold;
-  color: ${(props) => props.theme.colors.navy};
-`;
+// const Word = styled.div`
+//   font-size: 14px;
+//   font-weight: bold;
+//   color: ${(props) => props.theme.colors.navy};
+// `;
 
-const Translation = styled.div`
-  font-size: 12px;
-  color: ${(props) => props.theme.colors.navy};
-  margin-left: 10px;
-  background-color: #fff;
-  border-radius: 5px;
-  padding: 3px 7px;
-`;
+// const Translation = styled.div`
+//   font-size: 12px;
+//   color: ${(props) => props.theme.colors.navy};
+//   margin-left: 10px;
+//   background-color: #fff;
+//   border-radius: 5px;
+//   padding: 3px 7px;
+// `;
 
 const DeleteButton = styled.button`
   background: none;
