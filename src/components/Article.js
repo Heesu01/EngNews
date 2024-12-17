@@ -193,6 +193,7 @@ const Title = styled.div`
 `;
 
 const BtnBox = styled.div`
+  min-width: 140px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -205,12 +206,12 @@ const Btn = styled.button`
   align-items: center;
   justify-content: center;
   width: auto;
-  padding: 6px;
+  padding: 7px;
   border-radius: 5px;
   background-color: ${(props) =>
-    props.liked ? props.theme.colors.red : props.theme.colors.lightBlue};
+    props.liked ? props.theme.colors.red : props.theme.colors.white};
   cursor: pointer;
-  opacity: 1;
+  border: 1px solid ${(props) => props.theme.colors.gray2};
   p {
     margin-left: 5px;
   }

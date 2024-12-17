@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import { FaRegNewspaper, FaMicrophoneAlt, FaTools } from "react-icons/fa";
+import { FaRegNewspaper, FaTools } from "react-icons/fa";
+import { MdAssistant } from "react-icons/md";
 
 const Banner = () => {
   return (
@@ -34,7 +35,7 @@ const Banner = () => {
           </li>
           <li>
             <Icon>
-              <FaMicrophoneAlt />
+              <MdAssistant />
             </Icon>
             <Text>
               <strong>AI 피드백</strong> - 어휘와 문법 보완

@@ -45,7 +45,7 @@ const Translation = () => {
       const response = await postTranslation({
         news_content: articleData.content,
       });
-      setTranslation(response.gpt_answer);
+      setTranslation(response.data.gpt_answer);
     } catch (err) {
       setError(err.message || "번역 요청 중 문제가 발생했습니다.");
     } finally {
@@ -105,7 +105,9 @@ const Translation = () => {
             <>
               {translationLoading && <p>번역 요청 중...</p>}{" "}
               {error && <p style={{ color: "red" }}>{error}</p>}
-              {translation && <p>{translation}</p>}
+              {translation && (
+                <p style={{ whiteSpace: "pre-wrap" }}>{translation}</p>
+              )}
             </>
           )}
           {activeTab === "summary" && <p>요약된 내용을 여기에 표시합니다.</p>}
