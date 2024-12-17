@@ -39,13 +39,38 @@ const TryT = () => {
     setActiveTab(tab);
   };
 
-  const handleSetTranslateInput = () => {
+  const formatResponseText = (text) => {
+    if (!text) return "";
+    return text
+      .replace(/^"|"$/g, "")
+      .replace(/\\n/g, "\n")
+      .replace(/\\"/g, '"')
+      .trim();
+  };
+
+  const handleSetTranslateInput = async () => {
     if (translateInput.trim() === "") return;
-    setIsTranslationSet(true);
-    setMessages((prev) => [
-      ...prev,
-      { type: "info", text: `번역할 문장: ${translateInput}` },
-    ]);
+    try {
+      const response = await Axios.post("/try-translate/sentence", {
+        news_content: translateInput,
+      });
+      const gptAnswer = response?.data?.data?.gpt_answer;
+      if (!gptAnswer) throw new Error("gpt_answer가 존재하지 않습니다.");
+
+      const botMessage = {
+        type: "bot",
+        text: formatResponseText(gptAnswer),
+      };
+
+      setMessages([
+        { type: "info", text: `번역할 문장: ${translateInput}` },
+        botMessage,
+      ]);
+      setIsTranslationSet(true);
+    } catch (error) {
+      console.error("API 요청 실패:", error);
+      alert("요약 요청에 실패했습니다. 다시 시도해주세요.");
+    }
   };
 
   const handleSend = async () => {
@@ -59,17 +84,16 @@ const TryT = () => {
     setMessages((prev) => [...prev, userMessage]);
 
     try {
-      const response = await Axios.post("/try-translate", {
+      const response = await Axios.post("/try-translate/message", {
         message: userInput,
-        news_content: translateInput,
       });
+
+      const gptAnswer = response?.data?.data?.gpt_answer;
+      if (!gptAnswer) throw new Error("gpt_answer가 존재하지 않습니다.");
 
       const botMessage = {
         type: "bot",
-        text: response.data.data.gpt_answer.replace(
-          /^{\s*"gpt_answer":\s*"|"\s*}$/g,
-          ""
-        ),
+        text: formatResponseText(gptAnswer),
       };
       setMessages((prev) => [...prev, botMessage]);
     } catch (error) {
@@ -112,16 +136,14 @@ const TryT = () => {
         <Content>
           {activeTab === "translate" && (
             <ChatContainer>
-              {!isTranslationSet && (
-                <InitialInputContainer>
-                  <Input
-                    value={translateInput}
-                    onChange={(e) => setTranslateInput(e.target.value)}
-                    placeholder="번역할 문장을 입력하세요."
-                  />
-                  <SetButton onClick={handleSetTranslateInput}>설정</SetButton>
-                </InitialInputContainer>
-              )}
+              <InitialInputContainer>
+                <Input
+                  value={translateInput}
+                  onChange={(e) => setTranslateInput(e.target.value)}
+                  placeholder="번역할 문장을 입력하세요."
+                />
+                <SetButton onClick={handleSetTranslateInput}>설정</SetButton>
+              </InitialInputContainer>
               <Messages ref={messagesRef}>
                 {messages.map((msg, idx) => (
                   <MessageBubble
@@ -143,9 +165,9 @@ const TryT = () => {
               </InputContainer>
             </ChatContainer>
           )}
-          {activeTab === "summary" && (
+          {/* {activeTab === "summary" && (
             <p>여기는 요약해보기 탭의 내용을 표시합니다.</p>
-          )}
+          )} */}
         </Content>
       </RightBar>
     </Container>
@@ -166,6 +188,7 @@ const RightBar = styled.div`
   border-radius: 8px;
   display: flex;
   flex-direction: column;
+  height: 100%;
 `;
 
 const Tabs = styled.div`
@@ -195,7 +218,8 @@ const Content = styled.div`
 const ChatContainer = styled.div`
   display: flex;
   flex-direction: column;
-  height: 600px;
+  min-height: 700px;
+  max-height: 1000px;
 `;
 
 const InitialInputContainer = styled.div`

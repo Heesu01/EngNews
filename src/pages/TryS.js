@@ -39,13 +39,39 @@ const TryS = () => {
     setActiveTab(tab);
   };
 
-  const handleSetSummaryInput = () => {
+  const formatResponseText = (text) => {
+    if (!text) return "";
+    return text
+      .replace(/^"|"$/g, "")
+      .replace(/\\n/g, "\n")
+      .replace(/\\"/g, '"')
+      .trim();
+  };
+
+  const handleSetSummaryInput = async () => {
     if (summaryInput.trim() === "") return;
-    setIsSummarySet(true);
-    setMessages((prev) => [
-      ...prev,
-      { type: "info", text: `요약할 문장: ${summaryInput}` },
-    ]);
+    try {
+      const response = await Axios.post("/try-summarize/content", {
+        news_content: summaryInput,
+      });
+
+      const gptAnswer = response?.data?.data?.gpt_answer;
+      if (!gptAnswer) throw new Error("gpt_answer가 존재하지 않습니다.");
+
+      const botMessage = {
+        type: "bot",
+        text: formatResponseText(gptAnswer),
+      };
+
+      setMessages([
+        { type: "info", text: `요약할 문장: ${summaryInput}` },
+        botMessage,
+      ]);
+      setIsSummarySet(true);
+    } catch (error) {
+      console.error("API 요청 실패:", error);
+      alert("요약 요청에 실패했습니다. 다시 시도해주세요.");
+    }
   };
 
   const handleSend = async () => {
@@ -59,17 +85,16 @@ const TryS = () => {
     setMessages((prev) => [...prev, userMessage]);
 
     try {
-      const response = await Axios.post("/try-summarize", {
+      const response = await Axios.post("/try-summarize/message", {
         message: userInput,
-        news_content: summaryInput,
       });
+
+      const gptAnswer = response?.data?.data?.gpt_answer;
+      if (!gptAnswer) throw new Error("gpt_answer가 존재하지 않습니다.");
 
       const botMessage = {
         type: "bot",
-        text: response.data.data.gpt_answer.replace(
-          /^{\s*"gpt_answer":\s*"|"\s*}$/g,
-          ""
-        ),
+        text: formatResponseText(gptAnswer),
       };
       setMessages((prev) => [...prev, botMessage]);
     } catch (error) {
@@ -112,16 +137,14 @@ const TryS = () => {
         <Content>
           {activeTab === "summary" && (
             <ChatContainer>
-              {!isSummarySet && (
-                <InitialInputContainer>
-                  <Input
-                    value={summaryInput}
-                    onChange={(e) => setSummaryInput(e.target.value)}
-                    placeholder="요약할 내용을 입력하세요."
-                  />
-                  <SetButton onClick={handleSetSummaryInput}>설정</SetButton>
-                </InitialInputContainer>
-              )}
+              <InitialInputContainer>
+                <Input
+                  value={summaryInput}
+                  onChange={(e) => setSummaryInput(e.target.value)}
+                  placeholder="요약할 내용을 입력하세요."
+                />
+                <SetButton onClick={handleSetSummaryInput}>설정</SetButton>
+              </InitialInputContainer>
               <Messages ref={messagesRef}>
                 {messages.map((msg, idx) => (
                   <MessageBubble
@@ -163,6 +186,7 @@ const RightBar = styled.div`
   border-radius: 8px;
   display: flex;
   flex-direction: column;
+  height: 100%;
 `;
 
 const Tabs = styled.div`
@@ -192,7 +216,8 @@ const Content = styled.div`
 const ChatContainer = styled.div`
   display: flex;
   flex-direction: column;
-  height: 600px;
+  min-height: 700px;
+  max-height: 1000px;
 `;
 
 const InitialInputContainer = styled.div`
