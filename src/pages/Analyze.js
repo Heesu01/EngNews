@@ -6,6 +6,11 @@ import Article from "../components/Article";
 const Analyze = () => {
   const [analysisResult, setAnalysisResult] = useState(null);
 
+  const formatAnalysisResult = (text) => {
+    if (!text) return "";
+    return text.replace(/\n/g, "<br />");
+  };
+
   return (
     <Container>
       <LeftBar />
@@ -15,7 +20,11 @@ const Analyze = () => {
           <Title>구문 분석 결과</Title>
           <AnalysisResult>
             {analysisResult ? (
-              <p>{analysisResult}</p>
+              <p
+                dangerouslySetInnerHTML={{
+                  __html: formatAnalysisResult(analysisResult),
+                }}
+              />
             ) : (
               <p>구문을 드래그하면 결과가 여기에 표시됩니다.</p>
             )}

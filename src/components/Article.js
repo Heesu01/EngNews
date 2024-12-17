@@ -8,6 +8,7 @@ import {
   likeArticle,
   deleteLikedArticle,
 } from "../api/NewsApi";
+import { Axios } from "../api/Axios";
 
 const Article = ({ onAnalyze }) => {
   const location = useLocation();
@@ -77,24 +78,15 @@ const Article = ({ onAnalyze }) => {
 
     if (selectedText) {
       try {
-        const response = await fetch("/analyze-sentence", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ news_sentence: selectedText }),
+        const response = await Axios.post("/analyze-sentence", {
+          news_sentence: selectedText,
         });
 
-        const result = await response.json();
+        const gptAnswer = JSON.parse(response.data.data.gpt_answer).gpt_answer;
 
-        if (response.ok) {
-          onAnalyze(result.data.gpt_answer);
-        } else {
-          console.error("Error analyzing sentence:", result.message);
-          onAnalyze("분석에 실패했습니다. 다시 시도해주세요.");
-        }
+        onAnalyze(gptAnswer);
       } catch (err) {
-        console.error("Error:", err);
+        console.error("Error analyzing sentence:", err);
         onAnalyze("서버와의 통신에 실패했습니다.");
       }
     }
@@ -138,10 +130,10 @@ const Article = ({ onAnalyze }) => {
   return (
     <Container onMouseUp={handleMouseUp}>
       <Top>
-        <Date>{articleData.time || "시간 정보 없음"}</Date>
+        <Date>{articleData.time || ""}</Date>
         <TitleBox>
           <Title>
-            {articleData.title} <span>{articleData.journalistName}</span>
+            {articleData.title} <span>{articleData.journalistName || ""}</span>
           </Title>
           <BtnBox>
             <Btn onClick={handlePlayVoice}>
