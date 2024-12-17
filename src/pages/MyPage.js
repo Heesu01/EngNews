@@ -598,7 +598,7 @@ const ArticleGrid = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
-  height: 600px;
+  height: 550px;
   overflow-y: scroll;
   align-items: center;
 `;
