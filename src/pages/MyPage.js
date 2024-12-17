@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { FaHeart } from "react-icons/fa";
-import { VscSymbolKeyword } from "react-icons/vsc";
+// import { VscSymbolKeyword } from "react-icons/vsc";
 import { FaUserCircle } from "react-icons/fa";
 import { userApi } from "../api/UserApi";
 import {
@@ -18,14 +18,14 @@ import { useNavigate } from "react-router-dom";
 const MyPage = () => {
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
-  const [likedWords, setLikedWords] = useState([]);
+  // const [likedWords, setLikedWords] = useState([]);
   const [naverArticles, setNaverArticles] = useState([]);
   const [nytArticles, setNytArticles] = useState([]);
   const [isEditMode, setIsEditMode] = useState(false);
   const [password, setPassword] = useState("");
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 
-  const [loadingWords, setLoadingWords] = useState(true);
+  // const [loadingWords, setLoadingWords] = useState(true);
   const [loadingArticles, setLoadingArticles] = useState(true);
 
   const [availableCategories, setAvailableCategories] = useState([]);
@@ -38,7 +38,7 @@ const MyPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoadingWords(true);
+        // setLoadingWords(true);
         setLoadingArticles(true);
 
         const userResponse = await userApi.getUserDetails();
@@ -53,9 +53,9 @@ const MyPage = () => {
         const categoryKeywordsResponse = await fetchCategoryKeywords();
         setCategoryKeywords(categoryKeywordsResponse || []);
 
-        const wordsResponse = await userApi.getLikedWords();
-        setLikedWords(wordsResponse.data.wordLikeList || []);
-        setLoadingWords(false);
+        // const wordsResponse = await userApi.getLikedWords();
+        // setLikedWords(wordsResponse.data.wordLikeList || []);
+        // setLoadingWords(false);
         const [naverResponse, nytResponse] = await Promise.all([
           userApi.getLikedNaverArticles(),
           userApi.getLikedNytArticles(),
@@ -65,7 +65,7 @@ const MyPage = () => {
         setLoadingArticles(false);
       } catch (error) {
         console.error("Error fetching data:", error);
-        setLoadingWords(false);
+        // setLoadingWords(false);
         setLoadingArticles(false);
       }
     };
@@ -252,14 +252,14 @@ const MyPage = () => {
     navigate(`/news/${type}?url=${encodedUrl}`);
   };
 
-  const handleDeleteLikedWord = async (wordId) => {
-    try {
-      await userApi.deleteLikedWord(wordId);
-      setLikedWords((prev) => prev.filter((word) => word.id !== wordId));
-    } catch (error) {
-      console.error("Error deleting liked word:", error);
-    }
-  };
+  // const handleDeleteLikedWord = async (wordId) => {
+  //   try {
+  //     await userApi.deleteLikedWord(wordId);
+  //     setLikedWords((prev) => prev.filter((word) => word.id !== wordId));
+  //   } catch (error) {
+  //     console.error("Error deleting liked word:", error);
+  //   }
+  // };
 
   return (
     <Container>
