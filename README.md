@@ -56,3 +56,30 @@ AI 기반 뉴스 요약 및 번역 플랫폼
 - ![GoogleMeet](https://img.shields.io/badge/GoogleMeet-00897B?style=for-the-badge&logo=Google%20Meet&logoColor=white)  
 
 ---
+### 결과물
+- 메인
+    ![image](https://github.com/user-attachments/assets/ad3445d2-a0f3-4471-9732-6f2351227ef5)
+- 회원가입
+    ![image](https://github.com/user-attachments/assets/b9934d7d-fba3-4a29-a5fa-a9cb434a783a)
+    ![image](https://github.com/user-attachments/assets/101e247a-3614-4e2b-975e-68f0dc1358b2)
+
+- 네이버/nyt기사
+    ![image](https://github.com/user-attachments/assets/9ebe04e7-ef5f-479b-98c0-eb828ec97cfc)
+    ![image](https://github.com/user-attachments/assets/5a5ca444-3136-4bdd-a09b-4a03e3a272b8)
+
+- 기사 상세
+  ![image](https://github.com/user-attachments/assets/7ac71b48-c474-4e9e-bc24-f66172f5f6b5)
+  ![image](https://github.com/user-attachments/assets/c5686f8b-37c9-40b0-9339-a69564d75bbf)
+  ![image](https://github.com/user-attachments/assets/1fa1c2b9-7d4b-43be-b8c4-157de3944109)
+  ![image](https://github.com/user-attachments/assets/dfc66a9a-fd00-4fde-98c1-170ffefaad04)
+  ![image](https://github.com/user-attachments/assets/828188c9-854a-4a01-ad3a-fe215bf51b07)
+  ![image](https://github.com/user-attachments/assets/de296d66-319a-4a4d-9d41-844092b42802)
+  ![image](https://github.com/user-attachments/assets/bd6ee6b1-f149-4a3b-8a26-e862b87d656b)
+  ![image](https://github.com/user-attachments/assets/ca817b29-a251-4c17-8775-4a4b21fcc249)
+
+- 마이페이지
+    ![image](https://github.com/user-attachments/assets/237e3730-ebde-4219-b777-a5c46e11f7e9)
+
+
+    
+
