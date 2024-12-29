@@ -52,7 +52,7 @@ const TryT = () => {
     if (translateInput.trim() === "") return;
     try {
       const response = await Axios.post("/try-translate/sentence", {
-        news_content: translateInput,
+        news_sentence: translateInput,
       });
       const gptAnswer = response?.data?.data?.gpt_answer;
       if (!gptAnswer) throw new Error("gpt_answer가 존재하지 않습니다.");
